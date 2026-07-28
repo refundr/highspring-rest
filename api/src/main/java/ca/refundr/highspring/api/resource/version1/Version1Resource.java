@@ -5,6 +5,7 @@ import ca.refundr.highspring.api.resource.AbstractResource;
 import ca.refundr.highspring.api.resource.RootResource;
 import ca.refundr.highspring.api.resource.version1.admin.AdminResource;
 import ca.refundr.highspring.api.resource.version1.auth.AuthResource;
+import ca.refundr.highspring.api.resource.version1.cart.CartResource;
 import ca.refundr.highspring.api.resource.version1.me.MeResource;
 import ca.refundr.highspring.api.resource.version1.product.ProductsResource;
 import ca.refundr.highspring.api.resource.version1.purchase.PurchasesResource;
@@ -34,6 +35,7 @@ public final class Version1Resource extends AbstractChildResource<RootResource> 
 			() -> new AuthResource(scope, this),
 			() -> new MeResource(scope, this),
 			() -> new ProductsResource(scope, this),
+			() -> new CartResource(scope, this),
 			() -> new PurchasesResource(scope, this),
 			() -> new AdminResource(scope, this)
 		));

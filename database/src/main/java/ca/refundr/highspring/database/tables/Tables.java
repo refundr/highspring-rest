@@ -23,6 +23,7 @@ public final class Tables {
 	public static final ProductTable PRODUCT = new ProductTable();
 	public static final AppUserTable APP_USER = new AppUserTable();
 	public static final ApiSessionTable API_SESSION = new ApiSessionTable();
+	public static final CartItemTable CART_ITEM = new CartItemTable();
 	public static final PurchaseTable PURCHASE = new PurchaseTable();
 	public static final PurchaseItemTable PURCHASE_ITEM = new PurchaseItemTable();
 	public static final ApiErrorLogTable API_ERROR_LOG = new ApiErrorLogTable();
@@ -41,7 +42,16 @@ public final class Tables {
 		public final Field<UUID> CATEGORY_ID = DSL.field(name("product", "category_id"), UUID.class);
 		public final Field<String> NAME = DSL.field(name("product", "name"), String.class);
 		public final Field<BigDecimal> UNIT_PRICE = DSL.field(name("product", "unit_price"), BigDecimal.class);
+		public final Field<String> IMAGE_URL = DSL.field(name("product", "image_url"), String.class);
 		public final Field<Boolean> ACTIVE = DSL.field(name("product", "active"), Boolean.class);
+	}
+
+	public static final class CartItemTable {
+		public final Table<Record> table = DSL.table(name("cart_item"));
+		public final Field<UUID> USER_ID = DSL.field(name("cart_item", "user_id"), UUID.class);
+		public final Field<UUID> PRODUCT_ID = DSL.field(name("cart_item", "product_id"), UUID.class);
+		public final Field<Integer> QUANTITY = DSL.field(name("cart_item", "quantity"), Integer.class);
+		public final Field<OffsetDateTime> UPDATED_AT = DSL.field(name("cart_item", "updated_at"), OffsetDateTime.class);
 	}
 
 	public static final class AppUserTable {

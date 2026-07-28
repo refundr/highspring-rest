@@ -20,7 +20,9 @@ public record ErrorReport(
 			return "";
 		}
 		StringWriter sw = new StringWriter();
-		throwable.printStackTrace(new PrintWriter(sw));
+		PrintWriter pw = new PrintWriter(sw);
+		throwable.printStackTrace(pw);
+		pw.flush();
 		return sw.toString();
 	}
 }

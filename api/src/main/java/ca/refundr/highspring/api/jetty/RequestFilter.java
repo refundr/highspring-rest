@@ -6,6 +6,7 @@ import ca.refundr.highspring.api.resource.version1.purchase.PurchasesResource;
 import ca.refundr.highspring.api.scope.RequestScope;
 import ca.refundr.highspring.api.scope.ServerScope;
 import ca.refundr.highspring.api.util.ServerResponse;
+import ca.refundr.highspring.api.util.exceptions.BadRequestException;
 import ca.refundr.highspring.api.util.exceptions.RequestFailedException;
 import ca.refundr.highspring.common.error.ErrorReport;
 import com.google.common.base.Preconditions;
@@ -30,7 +31,10 @@ import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404;
 
 /**
  * Front door for every HTTP call: finds the matching URL handler, runs it,
- * and turns failures into the right status codes. Serious crashes are saved and emailed.
+ * and turns failures into the right status codes.
+ * <p>
+ * Expected client failures (4xx) are answered quietly.
+ * Unexpected exceptions are answered as 500 and persisted (stack trace + email).
  */
 public final class RequestFilter implements Filter {
 
@@ -64,12 +68,14 @@ public final class RequestFilter implements Filter {
 			try {
 				handleRequest(httpRequest, httpResponse, chain, requestScope);
 			} catch (RequestFailedException e) {
+				// Expected auth/permission/business 4xx — do not persist.
 				e.getServerResponse().send(requestScope.getResponseWriter());
 			} catch (PurchasesResource.ProductNotFound e) {
 				requestScope.getResponseWriter().sendText(NOT_FOUND_404, e.getMessage());
-			} catch (IllegalArgumentException e) {
+			} catch (BadRequestException e) {
 				requestScope.getResponseWriter().sendText(BAD_REQUEST_400, e.getMessage());
 			} catch (Exception e) {
+				// Unexpected: NullPointerException, SQLException wrappers, IllegalStateException, …
 				reportAndRespond500(requestScope, httpRequest, e);
 			}
 		}
@@ -122,7 +128,7 @@ public final class RequestFilter implements Filter {
 			e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage(),
 			e,
 			request.getMethod(),
-			request.getPathInfo(),
+			requestPath(request),
 			requestScope.getCurrentUser() == null ? null : requestScope.getCurrentUser().getId()
 		);
 		try {
@@ -131,6 +137,18 @@ public final class RequestFilter implements Filter {
 			log.error("ErrorReporter failed while handling a 500", reporterFailure);
 		}
 		requestScope.getResponseWriter().sendText(INTERNAL_SERVER_ERROR_500, ERROR_500_MESSAGE);
+	}
+
+	/**
+	 * Prefer the full request URI so api_error_log rows show a usable path (pathInfo is often null).
+	 */
+	private static String requestPath(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		String query = request.getQueryString();
+		if (query != null && !query.isBlank()) {
+			return uri + "?" + query;
+		}
+		return uri == null || uri.isBlank() ? extractResourcePath(request) : uri;
 	}
 
 	private void applyCors(HttpServletRequest request, HttpServletResponse response) {

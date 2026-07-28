@@ -6,6 +6,7 @@ import ca.refundr.highspring.api.resource.AbstractResource;
 import ca.refundr.highspring.api.resource.version1.Version1Resource;
 import ca.refundr.highspring.api.scope.RequestScope;
 import ca.refundr.highspring.api.util.ServerResponse;
+import ca.refundr.highspring.api.util.exceptions.BadRequestException;
 import ca.refundr.highspring.database.model.UserRole;
 import ca.refundr.highspring.database.row.AppUserRow;
 import ca.refundr.highspring.database.row.ProductRow;
@@ -60,7 +61,7 @@ public final class PurchasesResource extends AbstractChildResource<Version1Resou
 			List<CartPricingService.PricedLineInput> inputs = new ArrayList<>();
 			for (CreatePurchaseRequest.PurchaseLineRequest line : body.items()) {
 				if (line == null || line.productId() == null || line.quantity() <= 0) {
-					throw new IllegalArgumentException("Each item needs a productId and quantity > 0");
+					throw new BadRequestException("Each item needs a productId and quantity > 0");
 				}
 				ProductRow product = ProductRow.fetchActiveById(dsl, line.productId());
 				if (product == null) {

@@ -137,6 +137,17 @@ public abstract class AbstractResource {
 		}
 	}
 
+	protected <T extends AbstractResource> T getDescendantFromChildByLong(String relativePath,
+		Function<Long, ? extends AbstractResource> childById) {
+		try {
+			String idAsString = getNextSegment(relativePath, false);
+			long id = Long.parseLong(idAsString);
+			return childById.apply(id).getByPath(relativePath);
+		} catch (NumberFormatException ignored) {
+			return null;
+		}
+	}
+
 	protected AppUserRow requireSessionUser() {
 		String authorization = scope.getRequest().getHeader("Authorization");
 		if (authorization == null) {

@@ -16,16 +16,18 @@ public final class ProductRow {
 	private final UUID id;
 	private final String name;
 	private final BigDecimal unitPrice;
+	private final String imageUrl;
 	private final UUID categoryId;
 	private final String categoryCode;
 	private final String categoryName;
 	private final BigDecimal discountPercent;
 
-	public ProductRow(UUID id, String name, BigDecimal unitPrice, UUID categoryId, String categoryCode,
+	public ProductRow(UUID id, String name, BigDecimal unitPrice, String imageUrl, UUID categoryId, String categoryCode,
 		String categoryName, BigDecimal discountPercent) {
 		this.id = id;
 		this.name = name;
 		this.unitPrice = unitPrice;
+		this.imageUrl = imageUrl;
 		this.categoryId = categoryId;
 		this.categoryCode = categoryCode;
 		this.categoryName = categoryName;
@@ -42,6 +44,10 @@ public final class ProductRow {
 
 	public BigDecimal getUnitPrice() {
 		return unitPrice;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
 	public UUID getCategoryId() {
@@ -65,6 +71,7 @@ public final class ProductRow {
 				Tables.PRODUCT.ID,
 				Tables.PRODUCT.NAME,
 				Tables.PRODUCT.UNIT_PRICE,
+				Tables.PRODUCT.IMAGE_URL,
 				Tables.PRODUCT.CATEGORY_ID,
 				Tables.CATEGORY.CODE,
 				Tables.CATEGORY.NAME,
@@ -74,15 +81,7 @@ public final class ProductRow {
 			.join(Tables.CATEGORY.table).on(Tables.PRODUCT.CATEGORY_ID.eq(Tables.CATEGORY.ID))
 			.where(Tables.PRODUCT.ACTIVE.isTrue())
 			.orderBy(Tables.PRODUCT.NAME.asc())
-			.fetch(record -> new ProductRow(
-				record.get(Tables.PRODUCT.ID),
-				record.get(Tables.PRODUCT.NAME),
-				record.get(Tables.PRODUCT.UNIT_PRICE),
-				record.get(Tables.PRODUCT.CATEGORY_ID),
-				record.get(Tables.CATEGORY.CODE),
-				record.get(Tables.CATEGORY.NAME),
-				record.get(Tables.CATEGORY.DISCOUNT_PERCENT)
-			));
+			.fetch(record -> fromRecord(record));
 	}
 
 	public static ProductRow fetchActiveById(DSLContext dsl, UUID id) {
@@ -90,6 +89,7 @@ public final class ProductRow {
 				Tables.PRODUCT.ID,
 				Tables.PRODUCT.NAME,
 				Tables.PRODUCT.UNIT_PRICE,
+				Tables.PRODUCT.IMAGE_URL,
 				Tables.PRODUCT.CATEGORY_ID,
 				Tables.CATEGORY.CODE,
 				Tables.CATEGORY.NAME,
@@ -103,10 +103,15 @@ public final class ProductRow {
 		if (record == null) {
 			return null;
 		}
+		return fromRecord(record);
+	}
+
+	private static ProductRow fromRecord(Record record) {
 		return new ProductRow(
 			record.get(Tables.PRODUCT.ID),
 			record.get(Tables.PRODUCT.NAME),
 			record.get(Tables.PRODUCT.UNIT_PRICE),
+			record.get(Tables.PRODUCT.IMAGE_URL),
 			record.get(Tables.PRODUCT.CATEGORY_ID),
 			record.get(Tables.CATEGORY.CODE),
 			record.get(Tables.CATEGORY.NAME),

@@ -1,5 +1,6 @@
 package ca.refundr.highspring.api.oauth;
 
+import ca.refundr.highspring.api.util.exceptions.BadRequestException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -63,31 +64,41 @@ public final class GoogleOAuthProvider implements OAuthProvider {
 				.method(HttpMethod.POST)
 				.body(new FormRequestContent(fields))
 				.send();
-			if (tokenResponse.getStatus() >= 400) {
-				throw new IllegalArgumentException("Google token exchange failed: " + tokenResponse.getStatus());
+			int tokenStatus = tokenResponse.getStatus();
+			if (tokenStatus >= 500) {
+				throw new IllegalStateException("Google token exchange failed: " + tokenStatus);
+			}
+			if (tokenStatus >= 400) {
+				throw new BadRequestException("Google token exchange failed: " + tokenStatus);
 			}
 			JsonNode tokenJson = objectMapper.readTree(tokenResponse.getContentAsString());
 			String accessToken = tokenJson.path("access_token").asText(null);
 			if (accessToken == null || accessToken.isBlank()) {
-				throw new IllegalArgumentException("Google did not return an access token");
+				throw new BadRequestException("Google did not return an access token");
 			}
 
 			ContentResponse userResponse = httpClient.newRequest(USERINFO_URL)
 				.method(HttpMethod.GET)
 				.headers(h -> h.put("Authorization", "Bearer " + accessToken))
 				.send();
-			if (userResponse.getStatus() >= 400) {
-				throw new IllegalArgumentException("Google userinfo failed: " + userResponse.getStatus());
+			int userStatus = userResponse.getStatus();
+			if (userStatus >= 500) {
+				throw new IllegalStateException("Google userinfo failed: " + userStatus);
+			}
+			if (userStatus >= 400) {
+				throw new BadRequestException("Google userinfo failed: " + userStatus);
 			}
 			JsonNode user = objectMapper.readTree(userResponse.getContentAsString());
 			String subject = user.path("sub").asText(null);
 			String email = user.path("email").asText(null);
 			String name = user.path("name").asText(email);
 			if (subject == null || email == null) {
-				throw new IllegalArgumentException("Google profile missing sub/email");
+				throw new BadRequestException("Google profile missing sub/email");
 			}
+
 			return new GoogleProfile(subject, email, name);
-		} catch (IllegalArgumentException e) {
+
+		} catch (BadRequestException | IllegalStateException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new IllegalStateException("Google OAuth exchange failed", e);

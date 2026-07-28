@@ -43,6 +43,7 @@ public final class ProductsResource extends AbstractChildResource<Version1Resour
 					row.getId(),
 					row.getName(),
 					row.getUnitPrice(),
+					row.getImageUrl(),
 					row.getCategoryId(),
 					row.getCategoryCode(),
 					row.getCategoryName(),

@@ -108,4 +108,21 @@ public final class ApiErrorLogRow {
 				r.get(Tables.API_ERROR_LOG.CREATED_AT).toInstant()
 			));
 	}
+
+	/**
+	 * @return true if a row was deleted
+	 */
+	public static boolean deleteById(Connection connection, long id) {
+		int deleted = DSL.using(connection)
+			.deleteFrom(Tables.API_ERROR_LOG.table)
+			.where(Tables.API_ERROR_LOG.ID.eq(id))
+			.execute();
+		return deleted > 0;
+	}
+
+	public static int deleteAll(Connection connection) {
+		return DSL.using(connection)
+			.deleteFrom(Tables.API_ERROR_LOG.table)
+			.execute();
+	}
 }

@@ -11,6 +11,7 @@ Shopping cart backend for an interview exercise: catalog discounts, sales tax, G
 - Roles: `CUSTOMER` and `ADMIN` (emails in `ADMIN_EMAILS` become admins)
 - On unexpected **500** errors: stack trace is saved to `api_error_log` **and** emailed to the developer
 - Admins can view totals, errors, and the published Allure report
+- Demo 500: with `ENABLE_BOOM_ENDPOINT=true`, `GET /v1/admin/boom/` (ADMIN session) throws on purpose
 
 ## Modules
 
@@ -53,7 +54,7 @@ java -jar api/target/api-1.0-SNAPSHOT.jar
 
 Or from an IDE: run `ca.refundr.highspring.api.Server`.
 
-Default: `http://127.0.0.1:8080`
+Default: `http://127.0.0.1:8090` (uses **8090** so it does not collide with Aragorn on 8080)
 
 ## Tests + Allure 3
 
@@ -61,12 +62,12 @@ Tests create a throwaway Postgres database (`highspring_testN`), migrate with Fl
 
 ```bash
 mvn test
-mvn -pl api allure:serve
-# publish HTML for the admin UI:
-mvn -pl api allure:report verify
+mvn -pl api -am allure:report verify
 ```
 
 Published report directory: `api/published-allure/` (served at `/v1/admin/allure/` for **ADMIN** sessions).
+
+`-am` builds dependent modules (`common`, `domain`, `database`) with `api`. Without it, Maven looks for those jars in the local repo and fails.
 
 ## IntelliJ IDEA
 

@@ -20,12 +20,22 @@ Line prices are snapshotted on the purchase items so later catalog changes do no
 
 ## 500 errors: database + email
 
-Expected 4xx failures use `RequestFailedException` and do not alert. Unexpected exceptions reach `RequestFilter`, which:
+**Persist and alert only unexpected server failures** (true 500s). Expected client failures stay quiet.
 
-1. Writes a safe 500 body to the client
-2. Calls `CompositeErrorReporter` → `DatabaseErrorReporter` (stack trace in `api_error_log`) + `EmailErrorReporter` (developer email) + logging + Sentry stub
+| Exception | HTTP | Saved to `api_error_log`? |
+|-----------|------|---------------------------|
+| `RequestFailedException` (401/403/…) | 4xx | No |
+| `ProductNotFound` | 404 | No |
+| `BadRequestException` (validation, bad JSON, empty cart) | 400 | No |
+| Everything else (`IllegalStateException`, NPE, SQL, Google 5xx, …) | 500 | **Yes** (full stack) + email |
 
-Reporter failures are caught so they never replace the original 500 response.
+`RequestFilter` implements that split. Reporter failures are caught so they never replace the original 500 response.
+
+## Persisted shopping cart
+
+Signed-in shoppers get a **server-side** cart (`cart_item` keyed by `user_id`). That is the usual pattern once you have accounts/sessions: the cart survives browser restarts and devices, and checkout is authoritative on the server. Anonymous browsers often use `localStorage` until login (then merge); Highspring requires Google sign-in before shopping, so only the server cart is needed.
+
+Checkout for the UI is `POST /v1/cart/checkout/` (creates the purchase in one transaction and clears the cart). Direct `POST /v1/purchases/` with an item list remains for tests and API clients.
 
 ## Admin Allure access
 

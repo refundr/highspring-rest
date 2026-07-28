@@ -25,5 +25,5 @@ Same pattern as Aragorn: isolation without Testcontainers complexity, real Postg
 
 ```bash
 mvn test
-mvn -pl api allure:serve
+mvn -pl api -am allure:serve
 ```

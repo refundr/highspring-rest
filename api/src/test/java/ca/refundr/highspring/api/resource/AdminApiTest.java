@@ -47,19 +47,24 @@ public class AdminApiTest {
 	}
 
 	@Test
-	@Story("Admin can open Allure report")
+	@Story("Admin can delete error log entries")
 	@Severity(SeverityLevel.CRITICAL)
-	public void adminCanOpenAllure() throws Exception {
+	public void adminCanDeleteErrorLogs() throws Exception {
 		try (TestSupport test = new TestSupport()) {
 			String admin = test.loginAs("admin@example.com", "ADMIN");
-			String customer = test.loginAs("viewer@example.com", "CUSTOMER");
+			assertThat(test.request(HttpMethod.GET, "/v1/admin/boom/", admin, null).getStatus()).isEqualTo(500);
 
-			ContentResponse report = test.request(HttpMethod.GET, "/v1/admin/allure/", admin, null);
-			assertThat(report.getStatus()).isEqualTo(200);
-			assertThat(report.getContentAsString()).contains("Allure Test Report");
+			ContentResponse listed = test.request(HttpMethod.GET, "/v1/admin/errors/", admin, null);
+			assertThat(listed.getStatus()).isEqualTo(200);
+			assertThat(listed.getContentAsString()).contains("Intentional boom");
 
-			ContentResponse denied = test.request(HttpMethod.GET, "/v1/admin/allure/", customer, null);
-			assertThat(denied.getStatus()).isEqualTo(403);
+			ContentResponse cleared = test.request(HttpMethod.DELETE, "/v1/admin/errors/", admin, null);
+			assertThat(cleared.getStatus()).isEqualTo(200);
+			assertThat(cleared.getContentAsString()).contains("deleted");
+
+			ContentResponse empty = test.request(HttpMethod.GET, "/v1/admin/errors/", admin, null);
+			assertThat(empty.getStatus()).isEqualTo(200);
+			assertThat(empty.getContentAsString()).isEqualTo("[]");
 		}
 	}
 }

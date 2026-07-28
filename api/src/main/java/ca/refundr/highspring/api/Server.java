@@ -41,7 +41,7 @@ public final class Server {
 		     JettyServer jetty = new JettyServer(
 			     serverScope,
 			     configuration.getString("SERVER_HOST", "0.0.0.0"),
-			     configuration.getInt("SERVER_PORT", 8080)
+			     configuration.getInt("SERVER_PORT", 8090)
 		     )) {
 			log.info("Highspring API listening on {}", jetty.getBaseUri());
 			Thread.currentThread().join();

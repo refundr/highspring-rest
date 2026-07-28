@@ -1,5 +1,6 @@
 package ca.refundr.highspring.api.oauth;
 
+import ca.refundr.highspring.api.util.exceptions.BadRequestException;
 import com.google.common.base.Preconditions;
 
 import java.util.Map;
@@ -27,7 +28,7 @@ public final class StubOAuthProvider implements OAuthProvider {
 	public GoogleProfile exchangeCode(String code, String redirectUri) {
 		GoogleProfile profile = codes.get(code);
 		if (profile == null) {
-			throw new IllegalArgumentException("Unknown auth code");
+			throw new BadRequestException("Unknown auth code");
 		}
 		return profile;
 	}

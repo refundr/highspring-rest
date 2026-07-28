@@ -6,6 +6,7 @@ import ca.refundr.highspring.api.resource.AbstractResource;
 import ca.refundr.highspring.api.resource.version1.auth.AuthResource;
 import ca.refundr.highspring.api.scope.RequestScope;
 import ca.refundr.highspring.api.util.ServerResponse;
+import ca.refundr.highspring.api.util.exceptions.BadRequestException;
 import ca.refundr.highspring.database.model.UserRole;
 import ca.refundr.highspring.database.row.ApiSessionRow;
 import ca.refundr.highspring.database.row.AppUserRow;
@@ -49,7 +50,7 @@ public final class GoogleAuthCallbackResource extends AbstractChildResource<Auth
 		OAuthProvider.GoogleProfile profile;
 		try {
 			profile = scope.getOAuthProvider().exchangeCode(body.code(), body.redirectUri());
-		} catch (IllegalArgumentException e) {
+		} catch (BadRequestException e) {
 			return writer -> writer.sendText(UNAUTHORIZED_401, "Authorization is required.");
 		}
 

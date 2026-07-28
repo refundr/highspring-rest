@@ -105,6 +105,23 @@ public class PurchaseApiTest {
 			);
 			assertThat(errors).isNotEmpty();
 			assertThat(errors.getFirst().getStackTrace()).contains("Intentional boom");
+			assertThat(errors.getFirst().getStackTrace().length()).isGreaterThan(500);
+		}
+	}
+
+	@Test
+	@Story("Expected 400 does not pollute api_error_log")
+	@Severity(SeverityLevel.CRITICAL)
+	public void badRequestDoesNotWriteErrorLog() throws Exception {
+		try (TestSupport test = new TestSupport()) {
+			String session = test.loginAs("noboom@example.com", "CUSTOMER");
+			ContentResponse emptyCheckout = test.request(HttpMethod.POST, "/v1/cart/checkout/", session, "{}");
+			assertThat(emptyCheckout.getStatus()).isEqualTo(400);
+
+			long count = test.database().transactionWithResult(connection ->
+				ApiErrorLogRow.listRecent(DSL.using(connection), 10).size()
+			);
+			assertThat(count).isZero();
 		}
 	}
 }

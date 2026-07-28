@@ -1,7 +1,9 @@
 package ca.refundr.highspring.api.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
+import ca.refundr.highspring.api.util.exceptions.BadRequestException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
@@ -46,7 +48,11 @@ public final class RestRequest {
 		if (servletRequest.getContentLengthLong() == 0) {
 			return null;
 		}
-		return objectMapper.readValue(servletRequest.getInputStream(), type);
+		try {
+			return objectMapper.readValue(servletRequest.getInputStream(), type);
+		} catch (JsonProcessingException e) {
+			throw new BadRequestException("Request body must be valid JSON", e);
+		}
 	}
 
 	public String getQueryParameter(String name) {

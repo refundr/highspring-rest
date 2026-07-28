@@ -169,7 +169,8 @@
 				<plugin>
 					<groupId>io.qameta.allure</groupId>
 					<artifactId>allure-maven</artifactId>
-					<version>2.15.2</version>
+					<!-- 2.15.x still downloads allure-commandline.zip; 3.x provisions Allure 3 via Node -->
+					<version>3.0.3</version>
 					<configuration>
 						<reportVersion>3.4.1</reportVersion>
 						<resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>

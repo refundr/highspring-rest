@@ -10,6 +10,7 @@ public record ProductResponse(
 	UUID id,
 	String name,
 	BigDecimal unitPrice,
+	String imageUrl,
 	UUID categoryId,
 	String categoryCode,
 	String categoryName,
