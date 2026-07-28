@@ -16,7 +16,10 @@ import static org.eclipse.jetty.http.HttpStatus.METHOD_NOT_ALLOWED_405;
 import static org.eclipse.jetty.http.HttpStatus.OK_200;
 
 /**
- * Lists products from the catalog (read-only — products are seeded in the database).
+ * Catalog listing: {@code GET /v1/products/}.
+ *
+ * <p>Products are <strong>read-only</strong> in this exercise — they are inserted by Flyway seeds
+ * (see database migrations). Requires a valid session, but any signed-in role can browse.
  */
 public final class ProductsResource extends AbstractChildResource<Version1Resource> {
 

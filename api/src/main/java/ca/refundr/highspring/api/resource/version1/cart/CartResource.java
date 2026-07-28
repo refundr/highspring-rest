@@ -33,7 +33,20 @@ import static org.eclipse.jetty.http.HttpStatus.NO_CONTENT_204;
 import static org.eclipse.jetty.http.HttpStatus.OK_200;
 
 /**
- * Server-side shopping cart for the signed-in user. Survives browser sessions until checkout.
+ * Server-side shopping cart for the signed-in user ({@code /v1/cart/…}).
+ *
+ * <p>Industry pattern: once the shopper has an account/session, cart lines live in the database
+ * ({@code cart_item}), not only in the browser. That way quantities survive refresh and new devices.
+ *
+ * <pre>
+ *   GET    /v1/cart/            read cart + priced totals
+ *   DELETE /v1/cart/            empty the cart
+ *   POST   /v1/cart/items/      add quantity (increment)
+ *   PUT    /v1/cart/items/      set absolute quantity (0 removes)
+ *   POST   /v1/cart/checkout/   create purchase, clear cart (UI payment flow)
+ * </pre>
+ *
+ * <p>Money math is delegated to {@link CartPricingService} (category discount, then tax).
  */
 public final class CartResource extends AbstractChildResource<Version1Resource> {
 

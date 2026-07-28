@@ -25,15 +25,48 @@ import static org.eclipse.jetty.http.HttpStatus.NO_CONTENT_204;
 import static org.eclipse.jetty.http.HttpStatus.UNAUTHORIZED_401;
 
 /**
- * One URL path the API understands. Child classes say which HTTP methods they support
- * and what to do for each.
+ * Base class for one URL node in the hand-rolled resource tree.
+ *
+ * <h2>Junior cheat sheet</h2>
+ *
+ * <ul>
+ *   <li>{@link #getRelativePath()} — the path segment this class owns (usually ends with {@code /}).</li>
+ *   <li>{@link #getDescendantByPath(String)} — “who are my children?” for deeper paths.</li>
+ *   <li>{@link #httpGet()} / {@link #httpPost()} / … — what happens for that HTTP verb.</li>
+ *   <li>{@link #processRequest()} — picks the verb method (called by the filter after routing).</li>
+ *   <li>{@link #requireSessionUser()} / {@link #requireAdmin()} — auth helpers used by protected endpoints.</li>
+ * </ul>
+ *
+ * <h2>{@code getByPath} algorithm (the important bit)</h2>
+ *
+ * <p>Given {@code pathRelativeToResource} like {@code "v1/cart/"}:
+ * <ol>
+ *   <li>If the path does not start with this node’s {@code getRelativePath()}, return {@code null}
+ *       (this branch is wrong).</li>
+ *   <li>If the path equals this node’s segment exactly, return <em>this</em> (we are the leaf).</li>
+ *   <li>Otherwise strip our segment and ask {@link #getDescendantByPath(String)} to find a child.</li>
+ * </ol>
+ *
+ * <p>Parents usually override {@code getDescendantByPath} with
+ * {@link #getDescendantFromChildren(String, java.util.List)} or the UUID/long helpers.
+ *
+ * @see package-info
+ * @see RootResource
+ * @see AbstractChildResource
  */
 public abstract class AbstractResource {
 
+	/** Safe message returned to browsers on unexpected 500s (never leak internal details). */
 	public static final String ERROR_500_MESSAGE =
 		"Something went wrong on our side. Please try again in a moment.";
 
+	/** Per-request services (DB, JSON, OAuth, current user after auth). */
 	protected final RequestScope scope;
+
+	/**
+	 * HTTP verbs this resource allows. Always includes OPTIONS.
+	 * Subclasses should {@code supportedMethods.add("GET")} etc. in their constructor.
+	 */
 	protected final StringJoiner supportedMethods = new StringJoiner(", ");
 
 	protected AbstractResource(RequestScope scope) {
@@ -41,10 +74,22 @@ public abstract class AbstractResource {
 		supportedMethods.add("OPTIONS");
 	}
 
+	/**
+	 * Path segment owned by this node, relative to its parent.
+	 * Examples: {@code ""} (root), {@code "v1/"}, {@code "products/"}.
+	 */
 	public abstract String getRelativePath();
 
+	/**
+	 * Resolve a child for the remainder of the path after this node’s segment.
+	 * Return {@code null} if nothing matches (caller will 404).
+	 */
 	protected abstract <T extends AbstractResource> T getDescendantByPath(String relativePath);
 
+	/**
+	 * Dispatch to {@code httpGet}/{@code httpPost}/… based on the request method.
+	 * Resources that do not override a verb inherit “405 Method Not Allowed”.
+	 */
 	public final ServerResponse processRequest() throws IOException {
 		return switch (HttpMethod.valueOf(scope.getRequest().getMethod())) {
 			case OPTIONS -> httpOptions();
@@ -80,6 +125,13 @@ public abstract class AbstractResource {
 		return writer -> writer.sendEmpty(METHOD_NOT_ALLOWED_405, java.util.Map.of("Allow", supportedMethods.toString()));
 	}
 
+	/**
+	 * Walk from this node down the tree until a resource matches {@code pathRelativeToResource}.
+	 *
+	 * @param pathRelativeToResource full remaining path from this node’s perspective
+	 *                               (at the root, that is the whole request path without a leading slash)
+	 * @return the matching resource, or {@code null} if no branch fits
+	 */
 	public <T extends AbstractResource> T getByPath(String pathRelativeToResource) {
 		String pathSegment = getRelativePath();
 		if (!pathRelativeToResource.startsWith(pathSegment)) {
@@ -87,6 +139,7 @@ public abstract class AbstractResource {
 		}
 		boolean matchFound;
 		if (pathSegment.isEmpty() && pathRelativeToResource.isEmpty()) {
+			// Special case: GET / on the empty root path.
 			AbstractResource descendant = getDescendantByPath(pathRelativeToResource);
 			if (descendant != null) {
 				@SuppressWarnings("unchecked")
@@ -95,6 +148,7 @@ public abstract class AbstractResource {
 			}
 			matchFound = true;
 		} else {
+			// Exact match means this node is the target (e.g. path "products/" on ProductsResource).
 			matchFound = pathRelativeToResource.length() == pathSegment.length();
 		}
 		if (matchFound) {
@@ -102,9 +156,14 @@ public abstract class AbstractResource {
 			T match = (T) this;
 			return match;
 		}
+		// Deeper path: strip our segment and ask children about the rest.
 		return getDescendantByPath(pathRelativeToResource.substring(pathSegment.length()));
 	}
 
+	/**
+	 * First path segment, optionally keeping the trailing slash.
+	 * Example: {@code "aaaaaaaa-…/"} → {@code "aaaaaaaa-…"} or {@code "aaaaaaaa-…/"}.
+	 */
 	protected static String getNextSegment(String relativePath, boolean includeTrailingSlash) {
 		int endOfSegment = relativePath.indexOf('/');
 		if (endOfSegment == -1) {
@@ -115,6 +174,10 @@ public abstract class AbstractResource {
 		return relativePath.substring(0, endOfSegment);
 	}
 
+	/**
+	 * Try each child supplier’s {@link #getByPath(String)} until one returns non-null.
+	 * This is how parents register route tables without a framework router.
+	 */
 	protected <T extends AbstractResource> T getDescendantFromChildren(String relativePath,
 		java.util.List<Supplier<? extends AbstractResource>> children) {
 		for (Supplier<? extends AbstractResource> child : children) {
@@ -126,6 +189,9 @@ public abstract class AbstractResource {
 		return null;
 	}
 
+	/**
+	 * Match {@code /…/{uuid}/…} children. Invalid UUID text means “no match” (try another route).
+	 */
 	protected <T extends AbstractResource> T getDescendantFromChildByUuid(String relativePath,
 		Function<UUID, ? extends AbstractResource> childById) {
 		try {
@@ -137,6 +203,9 @@ public abstract class AbstractResource {
 		}
 	}
 
+	/**
+	 * Match {@code /…/{longId}/…} children (used for {@code api_error_log} ids).
+	 */
 	protected <T extends AbstractResource> T getDescendantFromChildByLong(String relativePath,
 		Function<Long, ? extends AbstractResource> childById) {
 		try {
@@ -148,6 +217,12 @@ public abstract class AbstractResource {
 		}
 	}
 
+	/**
+	 * Require {@code Authorization: session:{uuid}} and load the user.
+	 * Also refreshes session activity time.
+	 *
+	 * @throws RequestFailedException with HTTP 401 if missing/invalid/expired
+	 */
 	protected AppUserRow requireSessionUser() {
 		String authorization = scope.getRequest().getHeader("Authorization");
 		if (authorization == null) {
@@ -182,6 +257,11 @@ public abstract class AbstractResource {
 		});
 	}
 
+	/**
+	 * Same as {@link #requireSessionUser()} plus role must be {@link UserRole#ADMIN}.
+	 *
+	 * @throws RequestFailedException with HTTP 403 if the user is only a customer
+	 */
 	protected AppUserRow requireAdmin() {
 		AppUserRow user = requireSessionUser();
 		if (user.getRole() != UserRole.ADMIN) {

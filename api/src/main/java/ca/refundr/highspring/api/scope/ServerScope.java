@@ -27,7 +27,17 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Long-lived server services shared by every request (database, OAuth, error reporting).
+ * Long-lived server services shared by every request.
+ *
+ * <p>Created once at process start ({@link ca.refundr.highspring.api.Server}). Holds:
+ * <ul>
+ *   <li>config + database pool</li>
+ *   <li>OAuth provider (real Google, or a stub in tests)</li>
+ *   <li>{@link CartPricingService}</li>
+ *   <li>{@link ErrorReporter} composite (log + DB + email + Sentry stub)</li>
+ * </ul>
+ *
+ * <p>Per-request state belongs in {@link RequestScope}, created via {@link #createRequest}.
  */
 public final class ServerScope implements AutoCloseable {
 
@@ -41,6 +51,7 @@ public final class ServerScope implements AutoCloseable {
 	private final Set<String> adminEmails;
 	private final Duration sessionLifetime;
 	private final Path allureReportDir;
+	private final Path javadocReportDir;
 	private final boolean ownsHttpClient;
 
 	public ServerScope(AppConfiguration configuration, DatabaseScope database) throws Exception {
@@ -56,6 +67,7 @@ public final class ServerScope implements AutoCloseable {
 		this.adminEmails = configuration.getCsvSet("ADMIN_EMAILS");
 		this.sessionLifetime = Duration.ofHours(configuration.getInt("SESSION_HOURS", 24));
 		this.allureReportDir = Path.of(configuration.getString("ALLURE_REPORT_DIR", "published-allure"));
+		this.javadocReportDir = Path.of(configuration.getString("JAVADOC_REPORT_DIR", "published-javadoc/apidocs"));
 
 		if (oAuthProviderOverride != null) {
 			this.httpClient = null;
@@ -134,6 +146,11 @@ public final class ServerScope implements AutoCloseable {
 
 	public Path getAllureReportDir() {
 		return allureReportDir;
+	}
+
+	/** Directory of generated JavaDoc HTML (served at /v1/admin/javadoc/). */
+	public Path getJavadocReportDir() {
+		return javadocReportDir;
 	}
 
 	@Override

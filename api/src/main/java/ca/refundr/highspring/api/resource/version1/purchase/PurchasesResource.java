@@ -30,7 +30,14 @@ import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404;
 import static org.eclipse.jetty.http.HttpStatus.OK_200;
 
 /**
- * Creates and fetches purchases. Checkout saves the whole order in one database transaction.
+ * Purchase (order) endpoints under {@code /v1/purchases/}.
+ *
+ * <p>{@code POST /v1/purchases/} accepts an explicit item list and saves the order in <strong>one
+ * JDBC transaction</strong> (ACID). The Remix UI normally uses {@code POST /v1/cart/checkout/}
+ * instead; this endpoint remains for tests and direct API clients.
+ *
+ * <p>{@code GET /v1/purchases/{id}/} loads one order (owner or ADMIN). Nested id routing uses
+ * {@link #getDescendantFromChildByUuid}.
  */
 public final class PurchasesResource extends AbstractChildResource<Version1Resource> {
 

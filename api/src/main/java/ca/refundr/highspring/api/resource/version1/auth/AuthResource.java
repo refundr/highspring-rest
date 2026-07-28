@@ -10,7 +10,19 @@ import ca.refundr.highspring.api.scope.RequestScope;
 import java.util.List;
 
 /**
- * Login-related endpoints (/v1/auth/...).
+ * Login-related endpoints under {@code /v1/auth/}.
+ *
+ * <p>This class is only a folder in the resource tree. Real work lives in:
+ * <ul>
+ *   <li>{@link ca.refundr.highspring.api.resource.version1.auth.google.GoogleAuthUrlResource} —
+ *       {@code POST /v1/auth/google/url/} builds the Google consent URL</li>
+ *   <li>{@link ca.refundr.highspring.api.resource.version1.auth.google.GoogleAuthCallbackResource} —
+ *       {@code POST /v1/auth/google/callback/} exchanges the code for a profile and creates an
+ *       {@code api_session}</li>
+ * </ul>
+ *
+ * <p>The Remix app calls these from the browser (via its own loaders); the API never redirects the
+ * browser to Google directly for the callback exchange.
  */
 public final class AuthResource extends AbstractChildResource<Version1Resource> {
 

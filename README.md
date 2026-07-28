@@ -45,6 +45,8 @@ Fill in `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `ADMI
 
 `MAIL_MODE=logging` prints alert emails to the log (good for local). Set `MAIL_MODE=smtp` for real SMTP.
 
+**New to the codebase?** Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the JavaDoc on `RootResource` / `Version1Resource` (custom HTTP resource tree).
+
 ## Run the API
 
 ```bash
@@ -66,6 +68,8 @@ mvn -pl api -am allure:report verify
 ```
 
 Published report directory: `api/published-allure/` (served at `/v1/admin/allure/` for **ADMIN** sessions).
+
+JavaDoc (with HTTP status / error-code guide): `mvn javadoc:aggregate` → `api/published-javadoc/apidocs/` (served at `/v1/admin/javadoc/` for **ADMIN**).
 
 `-am` builds dependent modules (`common`, `domain`, `database`) with `api`. Without it, Maven looks for those jars in the local repo and fails.
 

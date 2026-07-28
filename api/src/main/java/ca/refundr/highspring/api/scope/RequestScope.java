@@ -19,7 +19,13 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Everything one HTTP request needs: database, config, auth helpers, and response writer.
+ * Everything one HTTP request needs while it is being handled.
+ *
+ * <p>Created by {@link ServerScope#createRequest} inside {@code RequestFilter}, closed when the
+ * filter finishes. Holds the parsed request, response writer, and (after auth) the current user.
+ *
+ * <p>Resource handlers should take what they need from here instead of reaching into static
+ * globals — that keeps tests able to swap database / OAuth easily.
  */
 public final class RequestScope implements AutoCloseable {
 
@@ -77,6 +83,10 @@ public final class RequestScope implements AutoCloseable {
 
 	public Path getAllureReportDir() {
 		return serverScope.getAllureReportDir();
+	}
+
+	public Path getJavadocReportDir() {
+		return serverScope.getJavadocReportDir();
 	}
 
 	public AppUserRow getCurrentUser() {

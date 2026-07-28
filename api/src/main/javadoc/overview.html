@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Highspring API — overview</title>
+</head>
+<body>
+  <h1>Highspring API documentation</h1>
+  <p>
+    This Javadoc site is generated from the Java sources and served to admins at
+    <code>/v1/admin/javadoc/</code>.
+  </p>
+
+  <h2>Start here</h2>
+  <ul>
+    <li><a href="ca/refundr/highspring/api/HttpStatusGuide.html"><b>HTTP status &amp; error codes</b></a>
+      — when the API returns 400 / 401 / 403 / 404 / 405 / 500</li>
+    <li><a href="ca/refundr/highspring/api/resource/package-summary.html">Resource tree package</a>
+      — how URLs map to Java classes (no Spring)</li>
+    <li><a href="ca/refundr/highspring/api/resource/RootResource.html">RootResource</a>
+      — top of the URL tree</li>
+    <li><a href="ca/refundr/highspring/api/resource/version1/Version1Resource.html">Version1Resource</a>
+      — <code>/v1/</code> route table</li>
+    <li><a href="ca/refundr/highspring/api/jetty/RequestFilter.html">RequestFilter</a>
+      — front door filter and exception policy</li>
+  </ul>
+
+  <h2>Error-code summary (quick)</h2>
+  <table border="1" cellpadding="6">
+    <tr><th>Code</th><th>Meaning</th><th>Saved to api_error_log?</th></tr>
+    <tr><td>200 / 201 / 204</td><td>Success</td><td>No</td></tr>
+    <tr><td>400</td><td>Bad request (validation / bad JSON / empty cart)</td><td>No</td></tr>
+    <tr><td>401</td><td>Missing or invalid session</td><td>No</td></tr>
+    <tr><td>403</td><td>Authenticated but not allowed (e.g. non-admin)</td><td>No</td></tr>
+    <tr><td>404</td><td>Unknown path or missing entity</td><td>No</td></tr>
+    <tr><td>405</td><td>Method not allowed</td><td>No</td></tr>
+    <tr><td>500</td><td>Unexpected server error</td><td><b>Yes</b> + email</td></tr>
+  </table>
+
+  <p>Regenerate with: <code>mvn -pl api -am javadoc:aggregate</code> (or <code>mvn verify</code>).</p>
+</body>
+</html>

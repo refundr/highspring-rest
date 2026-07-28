@@ -12,7 +12,14 @@ import java.net.InetSocketAddress;
 import java.util.EnumSet;
 
 /**
- * Starts the embedded Jetty web server that hosts the shopping cart API.
+ * Thin wrapper around embedded Jetty.
+ *
+ * <p>We intentionally do not register a big servlet framework. A single
+ * {@link RequestFilter} owns routing into our resource tree. That keeps the HTTP story
+ * interview-friendly: one filter → tree walk → handler method.
+ *
+ * <p><b>Gotcha:</b> {@code addFilter(..., dispatcherTypes)} must not pass {@code null}.
+ * Without dispatcher types Jetty never invokes the filter and every URL looks like a 404.
  */
 public final class JettyServer implements AutoCloseable {
 

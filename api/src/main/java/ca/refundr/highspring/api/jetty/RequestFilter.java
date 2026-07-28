@@ -30,11 +30,34 @@ import static org.eclipse.jetty.http.HttpStatus.METHOD_NOT_ALLOWED_405;
 import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404;
 
 /**
- * Front door for every HTTP call: finds the matching URL handler, runs it,
- * and turns failures into the right status codes.
- * <p>
- * Expected client failures (4xx) are answered quietly.
- * Unexpected exceptions are answered as 500 and persisted (stack trace + email).
+ * Servlet filter that is the <strong>front door</strong> for every API request.
+ *
+ * <h2>What happens on each call (read this first)</h2>
+ *
+ * <ol>
+ *   <li>Apply CORS headers so the Remix app on another origin can call us.</li>
+ *   <li>Open a {@link RequestScope} (DB access, JSON helpers, etc. for this one request).</li>
+ *   <li>Turn the URI into a path like {@code v1/products/} (no leading slash).</li>
+ *   <li>Build a {@link RootResource} and call {@code getByPath(path)} to find the handler
+ *       (see {@link ca.refundr.highspring.api.resource.package-info}).</li>
+ *   <li>Run {@code matching.processRequest()} → {@code httpGet}/{@code httpPost}/…</li>
+ *   <li>Write the {@link ServerResponse} to the servlet output.</li>
+ * </ol>
+ *
+ * <h2>Exception policy (important for production)</h2>
+ *
+ * <ul>
+ *   <li>{@link RequestFailedException} — expected 4xx (auth, forbidden). Answer only; do not log to DB.</li>
+ *   <li>{@link PurchasesResource.ProductNotFound} — 404 for unknown catalog ids.</li>
+ *   <li>{@link BadRequestException} — 400 for bad client input / empty cart / bad JSON.</li>
+ *   <li>Any other {@link Exception} — 500, full stack saved to {@code api_error_log}, email developer.</li>
+ * </ul>
+ *
+ * <p>Jetty is configured so this filter runs for all dispatcher types; otherwise requests can
+ * mysteriously 404 before reaching our code.
+ *
+ * @see RootResource
+ * @see ca.refundr.highspring.api.resource.version1.Version1Resource
  */
 public final class RequestFilter implements Filter {
 
@@ -45,6 +68,7 @@ public final class RequestFilter implements Filter {
 		this.serverScope = Preconditions.checkNotNull(serverScope, "serverScope");
 	}
 
+	/** Registered as {@code /*} so every path hits this filter. */
 	public String getPathSpec() {
 		return "/*";
 	}
@@ -81,10 +105,14 @@ public final class RequestFilter implements Filter {
 		}
 	}
 
+	/**
+	 * Route + execute one request. Throws expected client exceptions up to {@link #doFilter}.
+	 */
 	private void handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 		RequestScope requestScope) throws IOException, ServletException {
 		String path = extractResourcePath(request);
 
+		// Fresh root for every request — resources are cheap and hold no cross-request state.
 		RootResource root = new RootResource(requestScope);
 		AbstractResource matching = root.getByPath(path);
 		if (matching == null) {
@@ -102,12 +130,14 @@ public final class RequestFilter implements Filter {
 			}
 			serverResponse.send(requestScope.getResponseWriter());
 		} catch (RequestFailedException e) {
+			// Auth helpers throw this from inside httpGet/httpPost — still expected 4xx.
 			e.getServerResponse().send(requestScope.getResponseWriter());
 		}
 	}
 
 	/**
 	 * Turns the servlet request into a path relative to the API root (no leading slash).
+	 * Example: {@code http://host:8090/v1/cart/} → {@code v1/cart/}.
 	 */
 	static String extractResourcePath(HttpServletRequest request) {
 		String uri = request.getRequestURI();
@@ -121,6 +151,10 @@ public final class RequestFilter implements Filter {
 		return uri;
 	}
 
+	/**
+	 * Persist + email the failure, then send a generic 500 body to the client.
+	 * Reporter failures must never replace the original error response.
+	 */
 	private void reportAndRespond500(RequestScope requestScope, HttpServletRequest request, Exception e)
 		throws IOException {
 		log.error("Unhandled server error", e);
@@ -151,6 +185,7 @@ public final class RequestFilter implements Filter {
 		return uri == null || uri.isBlank() ? extractResourcePath(request) : uri;
 	}
 
+	/** Allow the Remix storefront (and any configured origins) to call this API from the browser. */
 	private void applyCors(HttpServletRequest request, HttpServletResponse response) {
 		String origin = request.getHeader("Origin");
 		String allowed = serverScope.getConfiguration().getString("CORS_ORIGINS", "http://localhost:3000");
