@@ -19,7 +19,7 @@
 
 ## Why per-test databases
 
-Same pattern as Aragorn: isolation without Testcontainers complexity, real Postgres + Flyway, and teardown that cannot leak data between tests.
+Isolation without Testcontainers complexity, real Postgres + Flyway, and teardown that cannot leak data between tests.
 
 ## How to run
 

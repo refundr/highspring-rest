@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 591b49d6-fe65-43e3-a61a-a96508190545
+
+localResources:
+  collections:
+    - ../Highspring_API.postman_collection.json

@@ -29,6 +29,12 @@ public final class CartPricingService {
 
 	/**
 	 * One product the shopper wants, with the price and category discount already known.
+	 *
+	 * @param productId        catalog product id
+	 * @param productName      display name for the line
+	 * @param unitPrice        list price per unit before discount
+	 * @param quantity         units requested (must be &gt; 0)
+	 * @param discountPercent  category discount percent (0–100)
 	 */
 	public record PricedLineInput(
 		java.util.UUID productId,
@@ -41,6 +47,13 @@ public final class CartPricingService {
 
 	/**
 	 * One line after the discount math is done.
+	 *
+	 * @param productId        catalog product id
+	 * @param productName      display name for the line
+	 * @param unitPrice        unit list price (scaled for money)
+	 * @param quantity         units on this line
+	 * @param discountPercent  discount that was applied (0–100)
+	 * @param lineSubtotal     money for this line after discount, before tax
 	 */
 	public record PricedLine(
 		java.util.UUID productId,
@@ -54,6 +67,12 @@ public final class CartPricingService {
 
 	/**
 	 * Full cart money picture: lines, subtotal (after discounts), tax, and grand total.
+	 *
+	 * @param lines     priced lines in order
+	 * @param subtotal  sum of line subtotals after discounts
+	 * @param salesTax  tax on {@code subtotal}
+	 * @param total     {@code subtotal + salesTax}
+	 * @param taxRate   rate used to compute {@code salesTax}
 	 */
 	public record CartTotals(
 		List<PricedLine> lines,

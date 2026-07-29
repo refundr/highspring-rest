@@ -196,6 +196,7 @@ public final class RequestFilter implements Filter {
 					response.setHeader("Access-Control-Allow-Credentials", "true");
 					response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept");
 					response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+					response.setHeader("Vary", "Origin");
 					break;
 				}
 			}

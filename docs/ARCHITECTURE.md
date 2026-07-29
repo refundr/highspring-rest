@@ -1,6 +1,6 @@
-# Architecture guide (junior-friendly)
+# Architecture guide
 
-Start here if you are new to Highspring. Prefer the **JavaDoc on the classes** for details — this page is the map.
+Prefer the **JavaDoc on the classes** for details — this page is the map.
 
 ## Big picture
 
@@ -16,7 +16,9 @@ Jetty API (port 8090)
     └── common module (config, mail, error reporting)
 ```
 
-There is **no Spring MVC**. URLs are matched by walking a tree of `AbstractResource` subclasses.
+URLs are matched by walking a tree of `AbstractResource` subclasses.
+
+![Class diagram](class-diagram.png)
 
 ## Read these classes first
 
@@ -39,6 +41,20 @@ There is **no Spring MVC**. URLs are matched by walking a tree of `AbstractResou
 5. `CartResource.httpGet()` runs
 
 Adding an endpoint = new resource class + register it in the parent’s `getDescendantByPath`.
+
+## Calling the API from outside Remix
+
+- Auth header and login steps: [AUTH.md](AUTH.md)
+- Importable Postman collection: [postman/Highspring_API.postman_collection.json](postman/Highspring_API.postman_collection.json)
+
+## Browser security (simple)
+
+| Concern | Where | What we do |
+|---------|-------|------------|
+| **CORS** | API `RequestFilter` | Allowlist from `CORS_ORIGINS` (e.g. `http://localhost:3000`); credentials only for matched origins |
+| **CSP** | Remix `root.tsx` headers | Restrict scripts/styles/frames to `'self'` (+ Google Fonts / https images) |
+| **CSRF** | Remix session cookie | `SameSite=Lax` + mutations via POST; API uses `Authorization` header (not a cookie), so cross-site pages cannot forge API calls with the bearer token |
+| **Logout** | `DELETE /v1/auth/logout/` | Deletes `api_session` before clearing the Remix cookie |
 
 ## Errors
 

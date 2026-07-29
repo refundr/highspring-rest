@@ -12,6 +12,10 @@ public interface OAuthProvider {
 
 	/**
 	 * Who Google says this person is.
+	 *
+	 * @param subject      Google's stable subject id ({@code sub} claim)
+	 * @param email        account email from Google
+	 * @param displayName  profile display name; may be {@code null}
 	 */
 	record GoogleProfile(String subject, String email, String displayName) {
 	}

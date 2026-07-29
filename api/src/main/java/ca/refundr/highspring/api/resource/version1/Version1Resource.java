@@ -27,10 +27,10 @@ import java.util.List;
  *   <li>{@link #getDescendantByPath(String)} tries each registered child until one matches.</li>
  * </ol>
  *
- * <h2>Map of /v1 children (memorize this)</h2>
+ * <h2>Map of /v1 children</h2>
  *
  * <pre>
- *   /v1/auth/...        {@link AuthResource}       Google login (url + callback)
+ *   /v1/auth/...        {@link AuthResource}       Google login + logout
  *   /v1/me/             {@link MeResource}         current session user
  *   /v1/products/       {@link ProductsResource}   catalog (read-only)
  *   /v1/cart/...        {@link CartResource}       persisted cart + checkout

@@ -1,5 +1,19 @@
 # Highspring REST API
 
+## Engineering principles
+
+- Favor readability over brevity
+- Favor libraries over frameworks
+- Avoid the use of any technology that introduces "magic" (an element of surprise) into the software development / debugging process
+- Given the choice between build-time code generation or runtime bytecode generation, we favor the former. Code generation creates source code that can be read and debugged, unlike bytecode generation.
+    - favour generated code that can be read and debugged over bytecode injected at runtime
+- We invest the necessary time to ensure that our software is easy to maintain over the long haul.
+- We add tests, refactor, and document our work as we go along, not after the fact.
+- Time estimates include this work as an inseparable part of implementing a new feature.
+- We work as part of a team. When you write (and document) code, do it with your teammates in mind.
+
+Full copy: [docs/PRINCIPLES.md](docs/PRINCIPLES.md).
+
 Shopping cart backend for an interview exercise: catalog discounts, sales tax, Google sign-in, admin tooling, and Allure 3 test reports.
 
 ## What it does
@@ -45,7 +59,9 @@ Fill in `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `ADMI
 
 `MAIL_MODE=logging` prints alert emails to the log (good for local). Set `MAIL_MODE=smtp` for real SMTP.
 
-**New to the codebase?** Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the JavaDoc on `RootResource` / `Version1Resource` (custom HTTP resource tree).
+**API clients:** import the [Postman collection](docs/postman/Highspring_API.postman_collection.json) and read [docs/AUTH.md](docs/AUTH.md) for `Authorization: session:{uuid}`.
+
+**Codebase map?** Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the JavaDoc on `RootResource` / `Version1Resource` (custom HTTP resource tree).
 
 ## Run the API
 
@@ -56,7 +72,7 @@ java -jar api/target/api-1.0-SNAPSHOT.jar
 
 Or from an IDE: run `ca.refundr.highspring.api.Server`.
 
-Default: `http://127.0.0.1:8090` (uses **8090** so it does not collide with Aragorn on 8080)
+Default: `http://127.0.0.1:8090`
 
 ## Tests + Allure 3
 

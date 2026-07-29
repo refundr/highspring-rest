@@ -27,7 +27,7 @@ import static org.eclipse.jetty.http.HttpStatus.UNAUTHORIZED_401;
 /**
  * Base class for one URL node in the hand-rolled resource tree.
  *
- * <h2>Junior cheat sheet</h2>
+ * <h2>Key methods</h2>
  *
  * <ul>
  *   <li>{@link #getRelativePath()} — the path segment this class owns (usually ends with {@code /}).</li>

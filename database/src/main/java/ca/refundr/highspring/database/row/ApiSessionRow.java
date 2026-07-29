@@ -79,4 +79,13 @@ public final class ApiSessionRow {
 			.where(Tables.API_SESSION.ID.eq(sessionId))
 			.execute();
 	}
+
+	/** Removes the session so the id can no longer authorize requests. */
+	public static void delete(Connection connection, UUID sessionId) {
+		Preconditions.checkNotNull(sessionId, "sessionId");
+		DSLContext dsl = DSL.using(connection);
+		dsl.deleteFrom(Tables.API_SESSION.table)
+			.where(Tables.API_SESSION.ID.eq(sessionId))
+			.execute();
+	}
 }

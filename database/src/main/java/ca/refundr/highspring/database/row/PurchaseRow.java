@@ -73,6 +73,16 @@ public final class PurchaseRow {
 		return items;
 	}
 
+	/**
+	 * Persisted purchase line loaded from {@code purchase_item}.
+	 *
+	 * @param productId        catalog product id at purchase time
+	 * @param productName      name snapshot stored on the line
+	 * @param unitPrice        unit list price stored on the line
+	 * @param quantity         units purchased
+	 * @param discountPercent  discount percent stored on the line
+	 * @param lineSubtotal     line money after discount
+	 */
 	public record PurchaseItemRow(
 		UUID productId,
 		String productName,
@@ -83,6 +93,16 @@ public final class PurchaseRow {
 	) {
 	}
 
+	/**
+	 * Input row for inserting a new purchase line (same fields as {@link PurchaseItemRow}).
+	 *
+	 * @param productId        catalog product id
+	 * @param productName      name to snapshot onto the line
+	 * @param unitPrice        unit list price to store
+	 * @param quantity         units to purchase
+	 * @param discountPercent  discount percent to store
+	 * @param lineSubtotal     precomputed line total after discount
+	 */
 	public record NewItem(
 		UUID productId,
 		String productName,
