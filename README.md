@@ -91,12 +91,24 @@ JavaDoc (with HTTP status / error-code guide): `mvn javadoc:aggregate` → `api/
 
 ## IntelliJ IDEA
 
-1. **Open the project root** (`highspring-rest`), not a submodule folder — File → Open → select the folder that contains the root `pom.xml`.
-2. When prompted, choose **Trust Project** and **Load Maven Project** / **Import as Maven**.
-3. Set Project SDK to **JDK 21** (or 22): File → Project Structure → Project → SDK.
-4. Wait for Maven sync to finish (bottom-right progress). Then use run config **Highspring API**.
+Maven compiles from the CLI (`mvn -pl api -am -DskipTests compile`). If the IDE looks broken, it usually means IntelliJ never finished importing the **parent** Maven project.
 
-If sources stay red: Maven tool window → reload (circular arrows), or right-click root `pom.xml` → Maven → Reload project.
+1. **File → Open** the folder that contains the root `pom.xml` (`highspring-rest`).  
+   Do **not** open only `api/`, and do **not** open a multi-root workspace that mixes this repo with the Remix client.
+2. When prompted: **Trust Project**, then **Load as Maven Project** / **Import Maven Project**.
+3. **File → Project Structure → Project**
+   - **SDK:** JDK **21** (this repo’s `java.version`)
+   - **Language level:** 21
+4. **Settings → Build, Execution, Deployment → Build Tools → Maven → Runner**
+   - **JRE:** same JDK 21 (or “Use Project JDK”)
+5. Open the **Maven** tool window → click **Reload All Maven Projects** (circular arrows). Wait until sync finishes (bottom-right).
+6. Confirm modules appear: `highspring`, `common`, `domain`, `database`, `api`.
+7. Run config **Highspring API** (`ca.refundr.highspring.api.Server`, working directory `api/`).
+
+If sources stay red after that:
+
+- Right-click root `pom.xml` → **Maven → Reload project**
+- Or **File → Invalidate Caches → Invalidate and Restart**, then reload Maven again
 
 Copy config first:
 

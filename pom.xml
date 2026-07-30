@@ -33,7 +33,6 @@
 		<testng.version>7.10.2</testng.version>
 		<assertj.version>3.27.3</assertj.version>
 		<allure.version>2.29.1</allure.version>
-		<aspectj.version>1.9.22.1</aspectj.version>
 		<jakarta.mail.version>2.0.1</jakarta.mail.version>
 		<surefire.argline>-Dfile.encoding=UTF-8 -ea</surefire.argline>
 	</properties>
