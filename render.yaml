@@ -10,8 +10,8 @@
 #     DATABASE_PASSWORD=...
 #   postgres:// URLs from Render are also accepted.
 #
-# After first deploy, set GOOGLE_REDIRECT_URI / CORS_ORIGINS / TRUSTED_HOSTS to your
-# client and API onrender.com hostnames (and update Google Cloud Console).
+# After first deploy, set CORS_ORIGINS to your client onrender.com origin
+# (and update Google Cloud Console redirect URI to the client callback).
 
 services:
   - type: web
@@ -38,16 +38,12 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
-      - key: GOOGLE_REDIRECT_URI
-        sync: false
       - key: ADMIN_EMAILS
         sync: false
       - key: DEVELOPER_ALERT_EMAIL
         sync: false
       - key: MAIL_MODE
         value: logging
-      - key: TRUSTED_HOSTS
-        sync: false
       - key: CORS_ORIGINS
         sync: false
       - key: E2E_AUTH_ENABLED

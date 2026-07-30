@@ -93,14 +93,13 @@ Java is **not** a native Render runtime, so the API uses a small `Dockerfile` + 
 2. For env vars marked `sync: false`, paste values from your **paid Render Postgres** (External Database):
    - `DATABASE_URL` — `jdbc:postgresql://HOST:5432/DBNAME` (or Render’s `postgres://…` URL; both work)
    - `DATABASE_USERNAME` / `DATABASE_PASSWORD`
-3. Set Google + host allowlists after you know the public URLs:
+3. Set Google + CORS after you know the public URLs:
    - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
-   - `GOOGLE_REDIRECT_URI=https://<client>.onrender.com/auth/callback`
    - `CORS_ORIGINS=https://<client>.onrender.com`
-   - `TRUSTED_HOSTS=<api-hostname>` (e.g. `highspring-api.onrender.com`)
    - `ADMIN_EMAILS` / `DEVELOPER_ALERT_EMAIL`
 4. Deploy the client repo with its own `render.yaml`; set `API_URL=https://<api>.onrender.com`.
-5. In Google Cloud Console, add the production redirect URI from step 3.
+5. In Google Cloud Console, add redirect URI `https://<client>.onrender.com/auth/callback`
+   (the client sends that URI in the OAuth request body — it is not an API env var).
 
 Free web services cold-start after idle; your paid Postgres stays up. `PORT` is honored automatically.
 
