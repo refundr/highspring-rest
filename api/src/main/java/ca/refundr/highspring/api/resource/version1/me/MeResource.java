@@ -15,8 +15,8 @@ import static org.eclipse.jetty.http.HttpStatus.OK_200;
 /**
  * {@code GET /v1/me/} — returns the signed-in user (session id, email, role).
  *
- * <p>The Remix shop loader calls this after login so the UI can refresh role (e.g. after
- * {@code ADMIN_EMAILS} changes) without forcing another Google sign-in.
+ * <p>The Remix shop loader calls this after login so the UI can refresh email/role
+ * without forcing another Google sign-in.
  */
 public final class MeResource extends AbstractChildResource<Version1Resource> {
 

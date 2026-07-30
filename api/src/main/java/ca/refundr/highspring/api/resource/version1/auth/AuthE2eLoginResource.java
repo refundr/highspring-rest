@@ -54,7 +54,7 @@ public final class AuthE2eLoginResource extends AbstractChildResource<AuthResour
 			? "E2E Shopper"
 			: body.displayName().trim();
 		String googleSub = "e2e:" + email;
-		UserRole role = scope.getAdminEmails().contains(email) ? UserRole.ADMIN : UserRole.CUSTOMER;
+		UserRole role = UserRole.ADMIN;
 
 		SessionResponse sessionResponse = scope.getDatabase().transactionWithResult(connection -> {
 			AppUserRow user = AppUserRow.upsertFromGoogle(connection, googleSub, email, displayName, role);

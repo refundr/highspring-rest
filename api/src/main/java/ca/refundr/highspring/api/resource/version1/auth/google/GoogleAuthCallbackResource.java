@@ -54,9 +54,8 @@ public final class GoogleAuthCallbackResource extends AbstractChildResource<Auth
 			return writer -> writer.sendText(UNAUTHORIZED_401, "Authorization is required.");
 		}
 
-		UserRole role = scope.getAdminEmails().contains(profile.email().toLowerCase())
-			? UserRole.ADMIN
-			: UserRole.CUSTOMER;
+		// Demo default: every new Google sign-in is ADMIN so the admin UI is easy to show.
+		UserRole role = UserRole.ADMIN;
 
 		SessionResponse sessionResponse = scope.getDatabase().transactionWithResult(connection -> {
 			AppUserRow user = AppUserRow.upsertFromGoogle(

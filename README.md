@@ -22,7 +22,7 @@ Shopping cart backend for an interview exercise: catalog discounts, sales tax, G
 - Checks out a cart: category discount **before** 8.5% sales tax
 - Saves the whole purchase in one database transaction (ACID)
 - Signs users in with Google OAuth (code lives in this API)
-- Roles: `CUSTOMER` and `ADMIN` (emails in `ADMIN_EMAILS` become admins)
+- Roles: `CUSTOMER` and `ADMIN` (new sign-ins default to **ADMIN** for demos)
 - On unexpected **500** errors: stack trace is saved to `api_error_log` **and** emailed to the developer
 - Admins can view totals, errors, and the published Allure report
 - Demo 500: with `ENABLE_BOOM_ENDPOINT=true`, `GET /v1/admin/boom/` (ADMIN session) throws on purpose

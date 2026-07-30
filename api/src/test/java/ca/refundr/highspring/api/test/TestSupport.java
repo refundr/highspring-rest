@@ -5,7 +5,9 @@ import ca.refundr.highspring.api.oauth.OAuthProvider;
 import ca.refundr.highspring.api.oauth.StubOAuthProvider;
 import ca.refundr.highspring.api.scope.ServerScope;
 import ca.refundr.highspring.common.config.AppConfiguration;
+import ca.refundr.highspring.database.model.UserRole;
 import ca.refundr.highspring.database.scope.TestDatabaseScope;
+import ca.refundr.highspring.database.tables.Tables;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -13,6 +15,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
 import org.eclipse.jetty.http.HttpMethod;
+import org.jooq.impl.DSL;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -87,6 +90,16 @@ public final class TestSupport implements AutoCloseable {
 			throw new IllegalStateException("Login failed: " + response.getStatus() + " " + response.getContentAsString());
 		}
 		JsonNode json = objectMapper.readTree(response.getContentAsString());
+		if (roleHint != null && !roleHint.isBlank()) {
+			UserRole role = UserRole.valueOf(roleHint);
+			database.transaction(connection -> {
+				DSL.using(connection)
+					.update(Tables.APP_USER.table)
+					.set(Tables.APP_USER.ROLE, DSL.field("?::user_role", String.class, role.name()))
+					.where(Tables.APP_USER.EMAIL.eq(email))
+					.execute();
+			});
+		}
 		return json.get("sessionId").asText();
 	}
 
