@@ -51,13 +51,12 @@ psql -h localhost -p 5436 -U postgres -c "CREATE DATABASE highspring;"
 
 ## Configuration
 
-```bash
-cp api/src/main/resources/application.template.properties api/src/main/resources/application.properties
-```
+`api/src/main/resources/application.properties` is committed so a clone can start without copying files.
+Blank reference copy: `application.template.properties` (same keys).
 
-Fill in `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `ADMIN_EMAILS`, and `DEVELOPER_ALERT_EMAIL`.
+Override any value with an environment variable of the same name if needed.
 
-`MAIL_MODE=logging` prints alert emails to the log (good for local). Set `MAIL_MODE=smtp` for real SMTP.
+`MAIL_MODE=logging` prints alert emails to the log. The committed file uses `MAIL_MODE=smtp`.
 
 **API clients:** import the [Postman collection](docs/postman/Highspring_API.postman_collection.json) and read [docs/AUTH.md](docs/AUTH.md) for `Authorization: session:{uuid}`.
 
@@ -114,8 +113,4 @@ If sources stay red after that:
 - Right-click root `pom.xml` → **Maven → Reload project**
 - Or **File → Invalidate Caches → Invalidate and Restart**, then reload Maven again
 
-Copy config first:
-
-```bash
-cp api/src/main/resources/application.template.properties api/src/main/resources/application.properties
-```
+Config is already present at `api/src/main/resources/application.properties` (committed for local demos).

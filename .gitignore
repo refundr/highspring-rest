@@ -2,11 +2,9 @@
 target/
 **/target/
 
-# Local secrets / overrides (copy from application.template.properties)
-application.properties
-**/application.properties
-!**/application.template.properties
-!**/application-test.properties
+# Local secrets / overrides — intentionally tracked for interview demo convenience.
+# Prefer env-var overrides in real deployments; rotate Google/SMTP secrets if this repo is public.
+# application.template.properties remains the blank starter copy.
 
 # IDE — ignore local IntelliJ state; keep portable JDK / import hints under .idea/
 .idea/*
