@@ -3,6 +3,7 @@ package ca.refundr.highspring.api.scope;
 import ca.refundr.highspring.api.oauth.GoogleOAuthProvider;
 import ca.refundr.highspring.api.oauth.OAuthProvider;
 import ca.refundr.highspring.api.pricing.CartPricingService;
+import ca.refundr.highspring.api.util.ReportPaths;
 import ca.refundr.highspring.common.config.AppConfiguration;
 import ca.refundr.highspring.common.error.CompositeErrorReporter;
 import ca.refundr.highspring.common.error.EmailErrorReporter;
@@ -66,8 +67,10 @@ public final class ServerScope implements AutoCloseable {
 		this.cartPricingService = new CartPricingService();
 		this.adminEmails = configuration.getCsvSet("ADMIN_EMAILS");
 		this.sessionLifetime = Duration.ofHours(configuration.getInt("SESSION_HOURS", 24));
-		this.allureReportDir = Path.of(configuration.getString("ALLURE_REPORT_DIR", "published-allure"));
-		this.javadocReportDir = Path.of(configuration.getString("JAVADOC_REPORT_DIR", "published-javadoc/apidocs"));
+		this.allureReportDir = ReportPaths.resolve(configuration.getString("ALLURE_REPORT_DIR", "published-allure"));
+		this.javadocReportDir = ReportPaths.resolve(
+			configuration.getString("JAVADOC_REPORT_DIR", "published-javadoc/apidocs")
+		);
 
 		if (oAuthProviderOverride != null) {
 			this.httpClient = null;

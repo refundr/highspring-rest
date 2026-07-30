@@ -59,6 +59,12 @@ public final class Server {
 			     configuration.getInt("SERVER_PORT", 8090)
 		     )) {
 			log.info("Highspring API listening on {}", jetty.getBaseUri());
+			log.info("Admin Allure dir: {} (exists={})",
+				serverScope.getAllureReportDir(),
+				Files.isDirectory(serverScope.getAllureReportDir()));
+			log.info("Admin JavaDoc dir: {} (exists={})",
+				serverScope.getJavadocReportDir(),
+				Files.isDirectory(serverScope.getJavadocReportDir()));
 			// Keep the process alive; Jetty serves requests on background threads.
 			Thread.currentThread().join();
 		}

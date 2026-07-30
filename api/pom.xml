@@ -78,6 +78,16 @@
 			<plugin>
 				<groupId>io.qameta.allure</groupId>
 				<artifactId>allure-maven</artifactId>
+				<executions>
+					<!-- Generate HTML during verify, before the antrun publish copy below. -->
+					<execution>
+						<id>allure-report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

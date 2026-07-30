@@ -73,20 +73,30 @@ Or from an IDE: run `ca.refundr.highspring.api.Server`.
 
 Default: `http://127.0.0.1:8090`
 
-## Tests + Allure 3
+## Tests + admin reports (Allure + JavaDoc)
 
-Tests create a throwaway Postgres database (`highspring_testN`), migrate with Flyway, run HTTP checks against embedded Jetty, then drop the database.
+Reports are **not** in git. After a fresh clone, generate them once (Postgres must be up), then restart the API:
+
+```bash
+mvn -pl api -am verify && mvn javadoc:aggregate
+```
+
+That runs tests, builds the Allure HTML, copies it to `api/published-allure/`, and writes JavaDoc to `api/published-javadoc/apidocs/`.
+
+Admin UI (Remix) proxies:
+
+- `/admin/allure/` → API `/v1/admin/allure/`
+- `/admin/javadoc/` → API `/v1/admin/javadoc/`
+
+If the admin page says the report was not found, the API process cannot see those folders (wrong cwd or reports never generated). Startup logs print the resolved Allure/JavaDoc paths.
+
+`-am` builds dependent modules (`common`, `domain`, `database`) with `api`. Without it, Maven looks for those jars in the local repo and fails.
+
+Tests only (no report publish):
 
 ```bash
 mvn test
-mvn -pl api -am allure:report verify
 ```
-
-Published report directory: `api/published-allure/` (served at `/v1/admin/allure/` for **ADMIN** sessions).
-
-JavaDoc (with HTTP status / error-code guide): `mvn javadoc:aggregate` → `api/published-javadoc/apidocs/` (served at `/v1/admin/javadoc/` for **ADMIN**).
-
-`-am` builds dependent modules (`common`, `domain`, `database`) with `api`. Without it, Maven looks for those jars in the local repo and fails.
 
 ## IntelliJ IDEA
 
