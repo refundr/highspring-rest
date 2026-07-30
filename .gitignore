@@ -23,13 +23,11 @@ target/
 *.swo
 .DS_Store
 
-# Allure / test / report build output
+# Allure results / local Allure CLI cache (generated HTML under api/published-* is committed for Render)
 .allure/
 **/.allure/
 allure-results/
 **/allure-results/
-api/published-allure/
-api/published-javadoc/
 
 # Logs
 *.log

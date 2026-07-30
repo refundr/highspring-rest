@@ -105,13 +105,15 @@ Free web services cold-start after idle; your paid Postgres stays up. `PORT` is 
 
 ## Tests + admin reports (Allure + JavaDoc)
 
-Reports are **not** in git. After a fresh clone, generate them once (Postgres must be up), then restart the API:
+Pre-built HTML under `api/published-allure/` and `api/published-javadoc/` is **committed** so Render can serve Admin reports without running Maven verify (which needs Postgres + compute time).
+
+Regenerate locally when tests or public APIs change (Postgres must be up), then commit the published folders:
 
 ```bash
 mvn -pl api -am verify && mvn javadoc:aggregate
 ```
 
-That runs tests, builds the Allure HTML, copies it to `api/published-allure/`, and writes JavaDoc to `api/published-javadoc/apidocs/`.
+That runs tests, builds the Allure HTML into `api/published-allure/`, and writes JavaDoc to `api/published-javadoc/apidocs/`. The Docker image copies those directories into the runtime container.
 
 Admin UI (Remix) proxies:
 
