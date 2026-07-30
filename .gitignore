@@ -8,8 +8,15 @@ application.properties
 !**/application.template.properties
 !**/application-test.properties
 
-# IDE
-.idea/
+# IDE — ignore local IntelliJ state; keep portable JDK / import hints under .idea/
+.idea/*
+!.idea/
+!.idea/.gitignore
+!.idea/misc.xml
+!.idea/compiler.xml
+!.idea/vcs.xml
+!.idea/encodings.xml
+!.idea/jarRepositories.xml
 *.iml
 *.ipr
 *.iws

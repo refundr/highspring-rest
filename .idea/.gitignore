@@ -1,0 +1,18 @@
+# Keep local IDE noise out, but share portable JDK / Maven import hints.
+.idea/*
+!.idea/.gitignore
+!.idea/misc.xml
+!.idea/compiler.xml
+!.idea/vcs.xml
+!.idea/encodings.xml
+!.idea/jarRepositories.xml
+
+/shelf/
+/workspace.xml
+/tasks.xml
+/usage.statistics.xml
+/httpRequests/
+/dataSources/
+/dataSources.local.xml
+/dictionaries/
+/sonarlint/

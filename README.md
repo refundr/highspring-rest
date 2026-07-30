@@ -91,14 +91,18 @@ JavaDoc (with HTTP status / error-code guide): `mvn javadoc:aggregate` → `api/
 
 ## IntelliJ IDEA
 
-Maven compiles from the CLI (`mvn -pl api -am -DskipTests compile`). If the IDE looks broken, it usually means IntelliJ never finished importing the **parent** Maven project.
+Maven compiles from the CLI (`mvn -pl api -am -DskipTests compile`). If the IDE looks broken, it usually means IntelliJ never finished importing the **parent** Maven project, or the Project SDK points at the wrong JDK.
+
+**This repo expects JDK 21.** IntelliJ should offer to configure SDK `21` when you open the project (`languageLevel` / `project-jdk-name` in `.idea/misc.xml`).
 
 1. **File → Open** the folder that contains the root `pom.xml` (`highspring-rest`).  
    Do **not** open only `api/`, and do **not** open a multi-root workspace that mixes this repo with the Remix client.
 2. When prompted: **Trust Project**, then **Load as Maven Project** / **Import Maven Project**.
-3. **File → Project Structure → Project**
-   - **SDK:** JDK **21** (this repo’s `java.version`)
-   - **Language level:** 21
+3. If IntelliJ shows **Project SDK is not defined** (or build fails with `cannot execute binary file`):
+   - **File → Project Structure → Project → SDK** → **Add JDK…** or **Download JDK…** → **21**
+   - Use a **macOS** JDK (Mach-O), e.g. JetBrains Runtime / Temurin / Homebrew OpenJDK.  
+     Do **not** point at a Linux JDK under something like `/Users/…/java/jdk-23*` (those fail with `cannot execute binary file` on Apple Silicon).
+   - **File → Project Structure → Platform Settings → SDKs**: remove any broken/non-mac JDK entries.
 4. **Settings → Build, Execution, Deployment → Build Tools → Maven → Runner**
    - **JRE:** same JDK 21 (or “Use Project JDK”)
 5. Open the **Maven** tool window → click **Reload All Maven Projects** (circular arrows). Wait until sync finishes (bottom-right).

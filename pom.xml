@@ -20,6 +20,7 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<maven.compiler.release>21</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<slf4j.version>2.0.16</slf4j.version>
 		<logback.version>1.5.16</logback.version>
@@ -179,6 +180,28 @@
 		</pluginManagement>
 
 		<plugins>
+			<!-- Fail fast if someone builds with the wrong JDK (IntelliJ or CLI). -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<id>enforce-java</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireJavaVersion>
+									<version>[21,25)</version>
+									<message>Highspring requires JDK 21+ (macOS/arm64 or compatible). Do not use a Linux JDK on macOS.</message>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- Aggregate API JavaDoc into api/published-javadoc for Admin UI hosting -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
