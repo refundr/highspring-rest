@@ -1,0 +1,35 @@
+# Maven
+target/
+**/target/
+
+# Local secrets / overrides (copy from application.template.properties)
+application.properties
+**/application.properties
+!**/application.template.properties
+!**/application-test.properties
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Allure / test / report build output
+.allure/
+**/.allure/
+allure-results/
+**/allure-results/
+api/published-allure/
+api/published-javadoc/
+
+# Logs
+*.log
+logs/
+
+# Runtime
+*.pid
+*.class
