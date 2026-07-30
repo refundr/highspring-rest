@@ -40,21 +40,33 @@ Shopping cart backend for an interview exercise: catalog discounts, sales tax, G
 
 - Java 21+
 - Maven 3.9+
-- Postgres listening locally (example: port `5436`)
+- Postgres listening locally
 - A Google OAuth client (Web application) with redirect URI matching the Remix app
 
-Create the database once:
+### Postgres (required before first start)
+
+The API expects this connection (also in `application.properties`). Align your local Postgres with it, or change the properties / env vars to match your install:
+
+```properties
+DATABASE_URL=jdbc:postgresql://localhost:5436/highspring
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=password
+```
+
+Create the database once (example using that host/port/user):
 
 ```bash
 psql -h localhost -p 5436 -U postgres -c "CREATE DATABASE highspring;"
 ```
+
+Flyway applies schema migrations automatically when the API starts — you do not run Flyway during the Maven build.
 
 ## Configuration
 
 `api/src/main/resources/application.properties` is committed so a clone can start without copying files.
 Blank reference copy: `application.template.properties` (same keys).
 
-Override any value with an environment variable of the same name if needed.
+At minimum, confirm the `DATABASE_*` values above match your Postgres. Override any property with an environment variable of the same name if needed.
 
 `MAIL_MODE=logging` prints alert emails to the log. The committed file uses `MAIL_MODE=smtp`.
 
