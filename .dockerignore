@@ -1,0 +1,12 @@
+target/
+**/target/
+.idea/
+.git/
+.allure/
+**/.allure/
+api/published-allure/
+api/published-javadoc/
+*.iml
+.DS_Store
+**/application.properties
+!**/application.template.properties

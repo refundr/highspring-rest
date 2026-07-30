@@ -1,0 +1,56 @@
+# Render Blueprint — highspring REST API (Java fat jar via Docker).
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Prerequisites:
+# - Connect this GitHub repo in Render
+# - You already have a paid Render Postgres — set DATABASE_* in the dashboard
+#   (sync: false below) using the External Database values, preferably:
+#     DATABASE_URL=jdbc:postgresql://HOST:5432/DBNAME
+#     DATABASE_USERNAME=...
+#     DATABASE_PASSWORD=...
+#   postgres:// URLs from Render are also accepted.
+#
+# After first deploy, set GOOGLE_REDIRECT_URI / CORS_ORIGINS / TRUSTED_HOSTS to your
+# client and API onrender.com hostnames (and update Google Cloud Console).
+
+services:
+  - type: web
+    name: highspring-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: SERVER_HOST
+        value: 0.0.0.0
+      - key: JAVA_OPTS
+        value: "-Xms64m -Xmx384m"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: DATABASE_MAX_POOL
+        value: "5"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: DEVELOPER_ALERT_EMAIL
+        sync: false
+      - key: MAIL_MODE
+        value: logging
+      - key: TRUSTED_HOSTS
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: E2E_AUTH_ENABLED
+        value: "false"
+      - key: ENABLE_BOOM_ENDPOINT
+        value: "false"

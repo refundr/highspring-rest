@@ -1,6 +1,7 @@
 package ca.refundr.highspring.database.scope;
 
 import ca.refundr.highspring.common.config.AppConfiguration;
+import ca.refundr.highspring.common.config.DatabaseUrls;
 import com.google.common.base.Preconditions;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -22,10 +23,13 @@ public final class MainDatabaseScope implements DatabaseScope {
 
 	public MainDatabaseScope(AppConfiguration configuration) {
 		this.configuration = Preconditions.checkNotNull(configuration, "configuration");
+		String rawUrl = configuration.getString("DATABASE_URL");
 		HikariConfig hikari = new HikariConfig();
-		hikari.setJdbcUrl(configuration.getString("DATABASE_URL"));
-		hikari.setUsername(configuration.getString("DATABASE_USERNAME"));
-		hikari.setPassword(configuration.getString("DATABASE_PASSWORD"));
+		hikari.setJdbcUrl(DatabaseUrls.toJdbcUrl(rawUrl));
+		hikari.setUsername(DatabaseUrls.usernameFromUrl(rawUrl)
+			.orElseGet(() -> configuration.getString("DATABASE_USERNAME")));
+		hikari.setPassword(DatabaseUrls.passwordFromUrl(rawUrl)
+			.orElseGet(() -> configuration.getString("DATABASE_PASSWORD")));
 		hikari.setMaximumPoolSize(configuration.getInt("DATABASE_MAX_POOL", 10));
 		hikari.setAutoCommit(false);
 		hikari.setTransactionIsolation("TRANSACTION_READ_COMMITTED");
