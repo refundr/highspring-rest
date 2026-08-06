@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * Everything one HTTP request needs while it is being handled.
  *
- * <p>Created by {@link ServerScope#createRequest} inside {@code RequestFilter}, closed when the
+ * <p>Created by {@link ServerManager#createRequest} inside {@code RequestFilter}, closed when the
  * filter finishes. Holds the parsed request, response writer, and (after auth) the current user.
  *
  * <p>Resource handlers should take what they need from here instead of reaching into static
@@ -29,13 +29,13 @@ import java.util.UUID;
  */
 public final class RequestScope implements AutoCloseable {
 
-	private final ServerScope serverScope;
+	private final ServerManager serverScope;
 	private final RestRequest request;
 	private final RestResponseWriter responseWriter;
 	private AppUserRow currentUser;
 	private UUID currentSessionId;
 
-	public RequestScope(ServerScope serverScope, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+	public RequestScope(ServerManager serverScope, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		this.serverScope = Preconditions.checkNotNull(serverScope, "serverScope");
 		this.request = new RestRequest(httpRequest, serverScope.getObjectMapper());
 		this.responseWriter = new RestResponseWriter(httpResponse, serverScope.getObjectMapper());

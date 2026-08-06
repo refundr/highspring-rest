@@ -1,6 +1,6 @@
 package ca.refundr.highspring.api.jetty;
 
-import ca.refundr.highspring.api.scope.ServerScope;
+import ca.refundr.highspring.api.scope.ServerManager;
 import com.google.common.base.Preconditions;
 import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.server.Server;
@@ -24,9 +24,9 @@ import java.util.EnumSet;
 public final class JettyServer implements AutoCloseable {
 
 	private final Server server;
-	private final ServerScope serverScope;
+	private final ServerManager serverScope;
 
-	public JettyServer(ServerScope serverScope, String host, int port) throws Exception {
+	public JettyServer(ServerManager serverScope, String host, int port) throws Exception {
 		this.serverScope = Preconditions.checkNotNull(serverScope, "serverScope");
 		this.server = new Server(new InetSocketAddress(host, port));
 

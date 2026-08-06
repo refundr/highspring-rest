@@ -59,36 +59,6 @@ public final class AdminAllureResource extends AbstractChildResource<AdminResour
 		return writer -> writer.sendBytes(OK_200, contentType, bytes);
 	}
 
-	/**
-	 * Nested Allure asset under /v1/admin/allure/...
-	 */
-	public static final class AdminAllureFileResource extends AbstractChildResource<AdminAllureResource> {
-
-		private final String relativeFile;
-
-		public AdminAllureFileResource(RequestScope scope, AdminAllureResource parent, String relativeFile) {
-			super(scope, parent);
-			this.relativeFile = relativeFile;
-			supportedMethods.add(HttpMethod.GET.asString());
-		}
-
-		@Override
-		public String getRelativePath() {
-			return relativeFile;
-		}
-
-		@Override
-		public ServerResponse httpGet() throws IOException {
-			requireAdmin();
-			return parent.serveFile(relativeFile);
-		}
-
-		@Override
-		protected <T extends AbstractResource> T getDescendantByPath(String relativePath) {
-			return (T) new AdminAllureFileResource(scope, parent, relativeFile + relativePath);
-		}
-	}
-
 	static String contentTypeFor(String fileName) {
 		String lower = fileName.toLowerCase();
 		if (lower.endsWith(".html")) return "text/html; charset=utf-8";

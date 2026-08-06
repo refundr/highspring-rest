@@ -1,9 +1,9 @@
 package ca.refundr.highspring.api;
 
 import ca.refundr.highspring.api.jetty.JettyServer;
-import ca.refundr.highspring.api.scope.ServerScope;
+import ca.refundr.highspring.api.scope.ServerManager;
 import ca.refundr.highspring.common.config.AppConfiguration;
-import ca.refundr.highspring.database.scope.MainDatabaseScope;
+import ca.refundr.highspring.database.scope.MainDatabaseManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +20,8 @@ import java.util.Properties;
  *
  * <ol>
  *   <li>Load {@code application.properties} (filesystem, then classpath inside the jar).</li>
- *   <li>Open Postgres via {@link MainDatabaseScope} (Flyway migrates schema on boot).</li>
- *   <li>Build {@link ServerScope} (OAuth, mail, error reporters, pricing).</li>
+ *   <li>Open Postgres via {@link MainDatabaseManager} (Flyway migrates schema on boot).</li>
+ *   <li>Build {@link ServerManager} (OAuth, mail, error reporters, pricing).</li>
  *   <li>Start embedded Jetty; {@link ca.refundr.highspring.api.jetty.RequestFilter} handles HTTP.</li>
  *   <li>Block the main thread until the JVM is stopped.</li>
  * </ol>
@@ -41,20 +41,20 @@ public final class Server {
 	public static void main(String[] args) throws Exception {
 		AppConfiguration configuration = loadConfiguration();
 		int port = resolvePort(configuration);
-		try (MainDatabaseScope database = new MainDatabaseScope(configuration);
-		     ServerScope serverScope = new ServerScope(configuration, database);
-		     JettyServer jetty = new JettyServer(
-			     serverScope,
+		try (MainDatabaseManager database = new MainDatabaseManager(configuration);
+             ServerManager serverManager = new ServerManager(configuration, database);
+             JettyServer jetty = new JettyServer(
+			     serverManager,
 			     configuration.getString("SERVER_HOST", "0.0.0.0"),
 			     port
 		     )) {
 			log.info("Highspring API listening on {}", jetty.getBaseUri());
 			log.info("Admin Allure dir: {} (exists={})",
-				serverScope.getAllureReportDir(),
-				Files.isDirectory(serverScope.getAllureReportDir()));
+				serverManager.getAllureReportDir(),
+				Files.isDirectory(serverManager.getAllureReportDir()));
 			log.info("Admin JavaDoc dir: {} (exists={})",
-				serverScope.getJavadocReportDir(),
-				Files.isDirectory(serverScope.getJavadocReportDir()));
+				serverManager.getJavadocReportDir(),
+				Files.isDirectory(serverManager.getJavadocReportDir()));
 			Thread.currentThread().join();
 		}
 	}

@@ -64,34 +64,4 @@ public final class AdminJavadocResource extends AbstractChildResource<AdminResou
 		byte[] bytes = Files.readAllBytes(target);
 		return writer -> writer.sendBytes(OK_200, contentType, bytes);
 	}
-
-	/**
-	 * Nested Javadoc asset under /v1/admin/javadoc/...
-	 */
-	public static final class AdminJavadocFileResource extends AbstractChildResource<AdminJavadocResource> {
-
-		private final String relativeFile;
-
-		public AdminJavadocFileResource(RequestScope scope, AdminJavadocResource parent, String relativeFile) {
-			super(scope, parent);
-			this.relativeFile = relativeFile;
-			supportedMethods.add(HttpMethod.GET.asString());
-		}
-
-		@Override
-		public String getRelativePath() {
-			return relativeFile;
-		}
-
-		@Override
-		public ServerResponse httpGet() throws IOException {
-			requireAdmin();
-			return parent.serveFile(relativeFile);
-		}
-
-		@Override
-		protected <T extends AbstractResource> T getDescendantByPath(String relativePath) {
-			return (T) new AdminJavadocFileResource(scope, parent, relativeFile + relativePath);
-		}
-	}
 }

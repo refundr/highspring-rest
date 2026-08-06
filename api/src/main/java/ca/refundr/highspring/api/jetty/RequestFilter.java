@@ -4,7 +4,7 @@ import ca.refundr.highspring.api.resource.AbstractResource;
 import ca.refundr.highspring.api.resource.RootResource;
 import ca.refundr.highspring.api.resource.version1.purchase.PurchasesResource;
 import ca.refundr.highspring.api.scope.RequestScope;
-import ca.refundr.highspring.api.scope.ServerScope;
+import ca.refundr.highspring.api.scope.ServerManager;
 import ca.refundr.highspring.api.util.ServerResponse;
 import ca.refundr.highspring.api.util.exceptions.BadRequestException;
 import ca.refundr.highspring.api.util.exceptions.RequestFailedException;
@@ -62,9 +62,9 @@ import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404;
 public final class RequestFilter implements Filter {
 
 	private static final Logger log = LoggerFactory.getLogger(RequestFilter.class);
-	private final ServerScope serverScope;
+	private final ServerManager serverScope;
 
-	public RequestFilter(ServerScope serverScope) {
+	public RequestFilter(ServerManager serverScope) {
 		this.serverScope = Preconditions.checkNotNull(serverScope, "serverScope");
 	}
 
@@ -78,11 +78,11 @@ public final class RequestFilter implements Filter {
 	}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-		throws IOException, ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		applyCors(httpRequest, httpResponse);
+
 		if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
 			httpResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
 			return;
@@ -90,7 +90,7 @@ public final class RequestFilter implements Filter {
 
 		try (RequestScope requestScope = serverScope.createRequest(httpRequest, httpResponse)) {
 			try {
-				handleRequest(httpRequest, httpResponse, chain, requestScope);
+				handleRequest(httpRequest, httpResponse, requestScope);
 			} catch (RequestFailedException e) {
 				// Expected auth/permission/business 4xx — do not persist.
 				e.getServerResponse().send(requestScope.getResponseWriter());
@@ -108,8 +108,7 @@ public final class RequestFilter implements Filter {
 	/**
 	 * Route + execute one request. Throws expected client exceptions up to {@link #doFilter}.
 	 */
-	private void handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-		RequestScope requestScope) throws IOException, ServletException {
+	private void handleRequest(HttpServletRequest request, HttpServletResponse response, RequestScope requestScope) throws IOException {
 		String path = extractResourcePath(request);
 
 		// Fresh root for every request — resources are cheap and hold no cross-request state.

@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *       ({@code {main}_test0}, {@code {main}_test1}, …). Tests never share rows, so
  *       order of execution does not matter and parallel runs do not collide.</li>
  *   <li><b>Real schema</b> — Flyway applies the same migration scripts as production
- *       ({@link MainDatabaseScope}). You are not testing against a hand-built mock schema
+ *       ({@link MainDatabaseManager}). You are not testing against a hand-built mock schema
  *       that can drift from what ships.</li>
  *   <li><b>Clean teardown</b> — {@link #close()} drops the database. Leftover data cannot
  *       poison the next run or the developer’s main {@code DATABASE_URL} database.</li>
@@ -67,7 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * only sibling {@code *_testN} databases are created and destroyed.
  *
  * @see DatabaseScope
- * @see MainDatabaseScope
+ * @see MainDatabaseManager
  */
 public final class TestDatabaseScope implements DatabaseScope {
 

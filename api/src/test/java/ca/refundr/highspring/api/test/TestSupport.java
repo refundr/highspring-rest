@@ -3,7 +3,7 @@ package ca.refundr.highspring.api.test;
 import ca.refundr.highspring.api.jetty.JettyServer;
 import ca.refundr.highspring.api.oauth.OAuthProvider;
 import ca.refundr.highspring.api.oauth.StubOAuthProvider;
-import ca.refundr.highspring.api.scope.ServerScope;
+import ca.refundr.highspring.api.scope.ServerManager;
 import ca.refundr.highspring.common.config.AppConfiguration;
 import ca.refundr.highspring.database.model.UserRole;
 import ca.refundr.highspring.database.scope.TestDatabaseScope;
@@ -30,7 +30,7 @@ public final class TestSupport implements AutoCloseable {
 
 	private final TestDatabaseScope database;
 	private final StubOAuthProvider oauth;
-	private final ServerScope serverScope;
+	private final ServerManager serverScope;
 	private final JettyServer jetty;
 	private final HttpClient httpClient;
 	private final ObjectMapper objectMapper;
@@ -49,7 +49,7 @@ public final class TestSupport implements AutoCloseable {
 		AppConfiguration configuration = new AppConfiguration(properties);
 		this.database = new TestDatabaseScope(configuration);
 		this.oauth = new StubOAuthProvider();
-		this.serverScope = new ServerScope(configuration, database, oauth);
+		this.serverScope = new ServerManager(configuration, database, oauth);
 		this.jetty = new JettyServer(serverScope, "127.0.0.1", 0);
 		this.httpClient = new HttpClient();
 		this.httpClient.start();

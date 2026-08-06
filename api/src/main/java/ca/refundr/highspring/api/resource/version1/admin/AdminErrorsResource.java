@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.jetty.http.HttpStatus.METHOD_NOT_ALLOWED_405;
-import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404;
-import static org.eclipse.jetty.http.HttpStatus.NO_CONTENT_204;
 import static org.eclipse.jetty.http.HttpStatus.OK_200;
 
 /**
@@ -68,41 +66,5 @@ public final class AdminErrorsResource extends AbstractChildResource<AdminResour
 	@Override
 	protected <T extends AbstractResource> T getDescendantByPath(String relativePath) {
 		return getDescendantFromChildByLong(relativePath, id -> new AdminErrorResource(scope, this, id));
-	}
-
-	/**
-	 * A single saved error: DELETE /v1/admin/errors/{id}/
-	 */
-	public static final class AdminErrorResource extends AbstractChildResource<AdminErrorsResource> {
-
-		private final long errorId;
-
-		public AdminErrorResource(RequestScope scope, AdminErrorsResource parent, long errorId) {
-			super(scope, parent);
-			this.errorId = errorId;
-			supportedMethods.add(HttpMethod.DELETE.asString());
-		}
-
-		@Override
-		public String getRelativePath() {
-			return errorId + "/";
-		}
-
-		@Override
-		public ServerResponse httpDelete() {
-			requireAdmin();
-			boolean deleted = scope.getDatabase().transactionWithResult(connection ->
-				ApiErrorLogRow.deleteById(connection, errorId)
-			);
-			if (!deleted) {
-				return writer -> writer.sendText(NOT_FOUND_404, "Error log entry not found");
-			}
-			return writer -> writer.sendEmpty(NO_CONTENT_204);
-		}
-
-		@Override
-		protected <T extends AbstractResource> T getDescendantByPath(String relativePath) {
-			return null;
-		}
 	}
 }

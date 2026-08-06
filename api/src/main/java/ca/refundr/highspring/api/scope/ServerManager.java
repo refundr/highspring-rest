@@ -40,7 +40,7 @@ import java.util.Set;
  *
  * <p>Per-request state belongs in {@link RequestScope}, created via {@link #createRequest}.
  */
-public final class ServerScope implements AutoCloseable {
+public final class ServerManager implements AutoCloseable {
 
 	private final AppConfiguration configuration;
 	private final DatabaseScope database;
@@ -55,11 +55,11 @@ public final class ServerScope implements AutoCloseable {
 	private final Path javadocReportDir;
 	private final boolean ownsHttpClient;
 
-	public ServerScope(AppConfiguration configuration, DatabaseScope database) throws Exception {
+	public ServerManager(AppConfiguration configuration, DatabaseScope database) throws Exception {
 		this(configuration, database, null);
 	}
 
-	public ServerScope(AppConfiguration configuration, DatabaseScope database, OAuthProvider oAuthProviderOverride)
+	public ServerManager(AppConfiguration configuration, DatabaseScope database, OAuthProvider oAuthProviderOverride)
 		throws Exception {
 		this.configuration = Preconditions.checkNotNull(configuration, "configuration");
 		this.database = Preconditions.checkNotNull(database, "database");

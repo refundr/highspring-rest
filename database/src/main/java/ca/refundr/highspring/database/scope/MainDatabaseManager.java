@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Database connection used when the real server is running.
  * Applies schema migrations on startup so the tables stay up to date.
  */
-public final class MainDatabaseScope implements DatabaseScope {
+public final class MainDatabaseManager implements DatabaseScope {
 
 	private final AppConfiguration configuration;
 	private final HikariDataSource dataSource;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 
-	public MainDatabaseScope(AppConfiguration configuration) {
+	public MainDatabaseManager(AppConfiguration configuration) {
 		this.configuration = Preconditions.checkNotNull(configuration, "configuration");
 		String rawUrl = configuration.getString("DATABASE_URL");
 		HikariConfig hikari = new HikariConfig();
