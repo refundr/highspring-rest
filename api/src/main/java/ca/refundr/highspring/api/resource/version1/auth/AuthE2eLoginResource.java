@@ -19,6 +19,19 @@ import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404;
 import static org.eclipse.jetty.http.HttpStatus.OK_200;
 
 /**
+ *
+ * It’s a test-only fake login that skips Google.
+ *
+ * POST /v1/auth/e2e/login/ with { email, displayName }:
+ *
+ * Only works if E2E_AUTH_ENABLED=true (otherwise 404).
+ * Upserts an app_user with a fake Google id like e2e:you@example.com (never talks to Google).
+ * Inserts a real api_session row.
+ * Returns the same kind of session JSON as the real Google callback (sessionId, email, role, …). Role is hardcoded ADMIN.
+ * Playwright uses that so checkout smoke tests don’t need a Google popup. Remix then hits /e2e/session with a secret to put that session into the cookie.
+ *
+ * Not for production. Real users still go through Google OAuth.
+ *
  * {@code POST /v1/auth/e2e/login/} — create a real {@code api_session} without Google.
  *
  * <p>Registered only when {@code E2E_AUTH_ENABLED=true}. Used by Playwright smoke tests so

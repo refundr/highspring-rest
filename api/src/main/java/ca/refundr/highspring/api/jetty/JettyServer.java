@@ -34,6 +34,7 @@ public final class JettyServer implements AutoCloseable {
 		context.setContextPath("/");
 		RequestFilter filter = new RequestFilter(serverScope);
 		// Dispatcher types must be set — null means the filter never runs and Jetty returns 404.
+        // That line hooks your RequestFilter into Jetty so every matching request goes through it.
 		context.addFilter(new FilterHolder(filter), filter.getPathSpec(), EnumSet.allOf(DispatcherType.class));
 		server.setHandler(context);
 		server.start();
