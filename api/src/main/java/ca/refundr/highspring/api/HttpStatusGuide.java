@@ -24,7 +24,7 @@ package ca.refundr.highspring.api;
  *     <td><b>200</b></td>
  *     <td>Successful GET (and some DELETE JSON bodies)</td>
  *     <td>No</td>
- *     <td>Catalog list, cart read, admin totals, me</td>
+ *     <td>{@code GET /ping}, catalog list, cart read, admin totals, me</td>
  *   </tr>
  *   <tr>
  *     <td><b>201</b></td>

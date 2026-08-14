@@ -1,5 +1,6 @@
 package ca.refundr.highspring.api.resource;
 
+import ca.refundr.highspring.api.resource.ping.PingResource;
 import ca.refundr.highspring.api.resource.version1.Version1Resource;
 import ca.refundr.highspring.api.scope.RequestScope;
 import ca.refundr.highspring.api.util.ServerResponse;
@@ -17,6 +18,7 @@ import static org.eclipse.jetty.http.HttpStatus.OK_200;
  * shopping features itself; it either:
  * <ul>
  *   <li>Answers {@code GET /} with a tiny JSON hello message, or</li>
+ *   <li>Hands {@code /ping} to {@link PingResource} (liveness, no auth), or</li>
  *   <li>Hands longer paths to {@link Version1Resource} under {@code /v1/}.</li>
  * </ul>
  *
@@ -31,8 +33,8 @@ import static org.eclipse.jetty.http.HttpStatus.OK_200;
  * </pre>
  *
  * <p>{@link #getByPath(String)} (inherited) checks this node’s {@link #getRelativePath()},
- * then asks {@link #getDescendantByPath(String)} for children. Here the only child is
- * {@link Version1Resource}.
+ * then asks {@link #getDescendantByPath(String)} for children. Children today are
+ * {@link PingResource} and {@link Version1Resource}.
  *
  * <h2>Adding a new API version later</h2>
  *
@@ -69,7 +71,7 @@ public final class RootResource extends AbstractResource {
 	}
 
 	/**
-	 * Children of the root. Today only version 1 lives here.
+	 * Children of the root: liveness ({@link PingResource}) and version 1 of the API.
 	 *
 	 * @param relativePath path left after the root segment (for root, that is the full path)
 	 */
@@ -77,6 +79,7 @@ public final class RootResource extends AbstractResource {
 	protected <T extends AbstractResource> T getDescendantByPath(String relativePath) {
 		// Suppliers create children lazily — only the matching branch is constructed.
 		return getDescendantFromChildren(relativePath, List.of(
+			() -> new PingResource(scope, this),
 			() -> new Version1Resource(scope, this)
 		));
 	}

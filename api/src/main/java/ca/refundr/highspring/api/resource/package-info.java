@@ -39,6 +39,7 @@
  *
  * <pre>
  *   RootResource            relativePath = ""
+ *     ├─ PingResource       relativePath = "ping"   ({@code GET /ping})
  *     └─ Version1Resource   relativePath = "v1/"
  *          └─ ProductsResource relativePath = "products/"
  * </pre>
